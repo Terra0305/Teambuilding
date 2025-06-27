@@ -3,7 +3,7 @@ Train service for senior
 
 👑 Leader / Backend
 박성민
-[깃허브 주소]
+[https://github.com/Terra0305]
 
 🖥️ Frontend
 조계율
