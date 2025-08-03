@@ -1,4 +1,4 @@
-package com.example.demo.API;
+package com.example.demo.booking;
 
 import lombok.Getter;
 

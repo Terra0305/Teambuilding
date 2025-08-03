@@ -1,7 +1,7 @@
 package com.example.demo.booking;
 
 import com.example.demo.train.Train;
-import com.example.demo.user.User; // 팀원이 만들 User 클래스
+import com.example.demo.user.User; 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

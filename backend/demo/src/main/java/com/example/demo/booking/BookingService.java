@@ -3,11 +3,12 @@ package com.example.demo.booking;
 import com.example.demo.train.Train;
 import com.example.demo.train.TrainRepository;
 import com.example.demo.user.User;
-import com.example.demo.user.UserRepository; // 팀원이 만들 UserRepository
+import com.example.demo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,10 @@ public class BookingService {
     }
 
     @Transactional(readOnly = true)
-    public List<Booking> findBookingsByUserId(Long userId) {
-        return bookingRepository.findAllByUser_Id(userId);
+    public List<BookingResponseDto> findBookingsByUserId(Long userId) {
+        List<Booking> bookings = bookingRepository.findAllByUserIdWithDetails(userId);
+        return bookings.stream()
+                .map(BookingResponseDto::new)
+                .collect(Collectors.toList());
     }
 }

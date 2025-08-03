@@ -1,6 +1,5 @@
 package com.example.demo.train;
 
-import com.example.demo.API.TrainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;

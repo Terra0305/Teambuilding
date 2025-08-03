@@ -1,7 +1,5 @@
-package com.example.demo.API;
+package com.example.demo.train;
 
-import com.example.demo.train.Train;
-import com.example.demo.train.TrainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
