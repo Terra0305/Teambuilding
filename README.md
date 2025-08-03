@@ -3,19 +3,19 @@ Train service for senior
 
 👑 Leader / Backend
 박성민
-[깃허브 주소]
+[https://github.com/Terra0305]
 
 🖥️ Frontend
 조계율
-[깃허브 주소]
+[https://github.com/gyeyul]
 
 🔩 Backend
 문우주
-[깃허브 주소]
+[https://github.com/MOONSpace1017]
 
 🔩 Backend
 손주영
-[깃허브 주소]
+[https://github.com/gewon823]
 
 Backend
 
