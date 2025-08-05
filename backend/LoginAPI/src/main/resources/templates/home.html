@@ -2,10 +2,103 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>홈</title>
+    <title>승차권 예매</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 상단 네비게이션 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003b4f;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .top-nav .left, .top-nav .right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .top-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* 중간 탭 메뉴 */
+        .tab-menu {
+            background-color: #007aad;
+            display: flex;
+            padding: 10px 20px;
+            gap: 30px;
+        }
+
+        .tab-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tab-menu a:hover {
+            border-bottom: 3px solid white;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-banner {
+            background-color: #0092cc;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .main-banner h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 2px 2px 4px #003b4f;
+        }
+    </style>
 </head>
 <body>
-    <h2>환영합니다!</h2>
-    <p>로그인에 성공했습니다 🎉</p>
+
+    <!-- 상단 네비게이션 -->
+    <div class="top-nav">
+        <div class="left">
+            <a href="#">한국철도</a>
+            <a href="#">승차권예매</a>
+            <a href="#">기차여행</a>
+        </div>
+        <div class="right">
+            <a href="/login">로그인</a>
+            <a href="#">장바구니</a>
+            <a href="#">마이페이지</a>
+            <a href="#">고객센터</a>
+            <a href="#">기업전용</a>
+            <a href="#"> Language</a>
+        </div>
+    </div>
+
+    <!-- 탭 메뉴 -->
+    <div class="tab-menu">
+        <a href="#">승차권</a>
+        <a href="#">철도역열차</a>
+        <a href="#">고객서비스</a>
+        <a href="#">코레일멤버십</a>
+    </div>
+
+    <!-- 메인 배너 -->
+    <div class="main-banner">
+        <h1>승차권 예매</h1>
+    </div>
+
 </body>
 </html>

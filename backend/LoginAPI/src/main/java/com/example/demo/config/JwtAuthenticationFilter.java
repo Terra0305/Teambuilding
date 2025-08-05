@@ -25,18 +25,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.equals("/login") || path.equals("/api/signup") || path.equals("/signup") || path.equals("/home") || path.equals("/") || path.equals("/login-success");
+    }
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-        // 인증 없이 접근 가능한 경로는 필터 건너뛰기
-        if (path.equals("/") || path.equals("/login") || path.equals("/signup") || path.equals("/api/signup") || path.equals("/home")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        
         String token = parseToken(request);
 
         if (token != null && jwtUtil.validateToken(token)) {
@@ -50,10 +49,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        else{
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
         }
 
         filterChain.doFilter(request, response);

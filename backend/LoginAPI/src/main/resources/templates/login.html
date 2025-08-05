@@ -6,7 +6,7 @@
 </head>
 <body>
     <h2>로그인 페이지</h2>
-    <form method="post" action="/login">
+    <form id="login-form" onsubmit="handleLogin(event)">
         <label for="username">아이디:</label>
         <input type="text" id="username" name="username" required><br><br>
 
@@ -14,6 +14,45 @@
         <input type="password" id="password" name="password" required><br><br>
 
         <button type="submit">로그인</button>
+        <button type="button" onclick="location.href='/signup'">회원가입</button>
     </form>
+
+    <p id="result"></p>
+
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault(); // 기본 폼 제출 방지
+            console.log("handleLogin 함수 호출됨");
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            console.log("입력된 아이디:", username);
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                console.log("서버 응답:", response);
+
+                const result = await response.json();
+                console.log("서버 결과:", result);
+
+                if (result.success) {
+                    localStorage.setItem('token', result.token);
+                    alert('로그인 성공! 로그인 성공 페이지로 이동합니다.');
+                    window.location.href = '/login-success';
+                } else {
+                    document.getElementById('result').innerText = result.message;
+                }
+            } catch (error) {
+                console.error("로그인 처리 중 오류 발생:", error);
+                document.getElementById('result').innerText = "로그인 중 오류가 발생했습니다.";
+            }
+        }
+    </script>
 </body>
 </html>

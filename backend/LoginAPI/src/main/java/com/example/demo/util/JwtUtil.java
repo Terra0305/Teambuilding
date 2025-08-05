@@ -15,7 +15,7 @@ import io.jsonwebtoken.Claims;
 
 @Component
 public class JwtUtil {
-    private final String secret = "SECRET_KEY";
+    private final String secret = "a-very-long-and-secure-secret-key-for-jwt-256-bits";
     private final long validity = 1000L * 60 * 60;
 
     Key secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
