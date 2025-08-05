@@ -3,13 +3,13 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity                 // JPA 엔티티임을 명시
-@Table(name = "users")  // 테이블명. 생략하면 클래스명과 동일
-@Data                   // Lombok: getter/setter 등 자동 생성
+@Entity
+@Table(name = "users")
+@Data
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
