@@ -1,7 +1,7 @@
 package com.example.demo.booking;
 
 import com.example.demo.train.Train;
-import com.example.demo.user.User; 
+import com.example.demo.entity.User; 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

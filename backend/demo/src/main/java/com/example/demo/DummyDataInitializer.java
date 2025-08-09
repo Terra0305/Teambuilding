@@ -1,9 +1,9 @@
 package com.example.demo;
 
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.train.Train;
 import com.example.demo.train.TrainRepository;
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,10 @@ public class DummyDataInitializer implements CommandLineRunner {
         System.out.println("DummyDataInitializer: 데이터 생성을 시작합니다...");
 
         // User 데이터 생성
-        userRepository.save(new User("박성민"));
+        User user = new User();
+        user.setUsername("박성민");
+        user.setPassword("password"); // 임시 비밀번호 설정
+        userRepository.save(user);
         System.out.println(">>> 유저 데이터 '박성민' 생성 시도 완료.");
 
 

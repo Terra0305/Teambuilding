@@ -2,8 +2,8 @@ package com.example.demo.booking;
 
 import com.example.demo.train.Train;
 import com.example.demo.train.TrainRepository;
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepository;
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
