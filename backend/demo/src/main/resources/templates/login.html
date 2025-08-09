@@ -3,43 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>로그인</title>
+    <style>
+        /* CSS는 이전과 동일 */
+    </style>
 </head>
 <body>
-    <h2>로그인 페이지</h2>
-    <form id="login-form" onsubmit="handleLogin(event)">
-        <label for="username">아이디:</label>
-        <input type="text" id="username" name="username" required><br><br>
-
-        <label for="password">비밀번호:</label>
-        <input type="password" id="password" name="password" required><br><br>
-
-        <button type="submit">로그인</button>
-        <button type="button" onclick="location.href='/signup'">회원가입</button>
-    </form>
-
-    <p id="result"></p>
+    ...
 
     <script>
         async function handleLogin(event) {
-            event.preventDefault(); // 기본 폼 제출 방지
-            console.log("handleLogin 함수 호출됨");
-
+            event.preventDefault();
+            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            console.log("입력된 아이디:", username);
 
             try {
-                const response = await fetch('/login', {
+                // ★★★ 호출 주소를 '/login'에서 '/api/login'으로 수정 ★★★
+                const response = await fetch('/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
-                console.log("서버 응답:", response);
 
                 const result = await response.json();
-                console.log("서버 결과:", result);
 
                 if (result.success) {
                     localStorage.setItem('token', result.token);
@@ -49,7 +35,6 @@
                     document.getElementById('result').innerText = result.message;
                 }
             } catch (error) {
-                console.error("로그인 처리 중 오류 발생:", error);
                 document.getElementById('result').innerText = "로그인 중 오류가 발생했습니다.";
             }
         }

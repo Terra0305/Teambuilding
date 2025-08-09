@@ -1,25 +1,43 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
+    <style>
+        /* CSS 스타일은 이전과 동일 */
+        body { margin: 0; font-family: 'Noto Sans KR', sans-serif; background-color: #f4f4f4; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; background-color: #003b4f; color: white; padding: 10px 20px; }
+        .top-nav .left, .top-nav .right { display: flex; gap: 20px; }
+        .top-nav a { color: white; text-decoration: none; font-size: 14px; }
+        .top-nav a:hover { text-decoration: underline; }
+        .tab-menu { background-color: #007aad; display: flex; padding: 10px 20px; gap: 30px; }
+        .tab-menu a { color: white; text-decoration: none; font-weight: bold; font-size: 16px; }
+        .tab-menu a:hover { border-bottom: 3px solid white; }
+        .main-content { display: flex; justify-content: center; align-items: center; height: calc(100vh - 160px); }
+        .signup-container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        .signup-container h2 { color: #003b4f; margin-bottom: 30px; }
+        .signup-container input[type="text"], .signup-container input[type="password"] { width: calc(100% - 20px); padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        .signup-container button { width: 100%; padding: 12px; border: none; border-radius: 4px; background-color: #007aad; color: white; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
+        .signup-container button:hover { background-color: #005f8a; }
+        #result { color: red; margin-top: 15px; }
+    </style>
 </head>
 <body>
-    <h2>회원가입</h2>
-    <form id="signup-form">
-        <label for="username">아이디:</label>
-        <input type="text" id="username" name="username" required><br><br>
+    <div class="top-nav">...</div>
+    <div class="tab-menu">...</div>
 
-        <label for="password">비밀번호:</label>
-        <input type="password" id="password" name="password" required><br><br>
-
-        <label for="name">이름:</label>
-        <input type="text" id="name" name="name" required><br><br>
-
-        <button type="submit">회원가입</button>
-    </form>
-
-    <p id="result"></p>
+    <div class="main-content">
+        <div class="signup-container">
+            <h2>회원가입</h2>
+            <form id="signup-form">
+                <input type="text" id="username" name="username" placeholder="아이디" required><br>
+                <input type="password" id="password" name="password" placeholder="비밀번호" required><br>
+                <input type="text" id="name" name="name" placeholder="이름" required><br>
+                <button type="submit">회원가입</button>
+            </form>
+            <p id="result"></p>
+        </div>
+    </div>
 
     <script>
         const form = document.getElementById('signup-form');
@@ -28,13 +46,13 @@
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            // ★★★ '이름' 값 가져오기 추가 ★★★
             const name = document.getElementById('name').value;
 
             const response = await fetch('/api/signup', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
+                // ★★★ body에 'name' 포함해서 보내기 ★★★
                 body: JSON.stringify({ username, password, name })
             });
 

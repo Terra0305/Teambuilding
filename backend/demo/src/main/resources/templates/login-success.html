@@ -1,12 +1,134 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>로그인 성공</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* 상단 네비게이션 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003b4f;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .top-nav .left, .top-nav .right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .top-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* 중간 탭 메뉴 */
+        .tab-menu {
+            background-color: #007aad;
+            display: flex;
+            padding: 10px 20px;
+            gap: 30px;
+        }
+
+        .tab-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tab-menu a:hover {
+            border-bottom: 3px solid white;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 160px);
+            text-align: center;
+        }
+
+        .content-container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .content-container h2 {
+            color: #003b4f;
+            margin-bottom: 20px;
+        }
+
+        .content-container p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .content-container a {
+            padding: 12px 25px;
+            border-radius: 4px;
+            background-color: #007aad;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .content-container a:hover {
+            background-color: #005f8a;
+        }
+    </style>
 </head>
 <body>
-    <h2>로그인 성공!</h2>
-    <p>환영합니다!</p>
-    <a href="/home">홈으로 가기</a>
+
+    <!-- 상단 네비게이션 -->
+    <div class="top-nav">
+        <div class="left">
+            <a href="#">한국철도</a>
+            <a href="#">승차권예매</a>
+            <a href="#">기차여행</a>
+        </div>
+        <div class="right">
+            <a href="/login">로그인</a>
+            <a href="#">장바구니</a>
+            <a href="#">마이페이지</a>
+            <a href="#">고객센터</a>
+            <a href="#">기업전용</a>
+            <a href="#"> Language</a>
+        </div>
+    </div>
+
+    <!-- 탭 메뉴 -->
+    <div class="tab-menu">
+        <a href="#">승차권</a>
+        <a href="#">철도역열차</a>
+        <a href="#">고객서비스</a>
+        <a href="#">코레일멤버십</a>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+        <div class="content-container">
+            <h2>로그인 성공!</h2>
+            <p>환영합니다!</p>
+            <a href="/home">홈으로 가기</a>
+        </div>
+    </div>
+
 </body>
 </html>

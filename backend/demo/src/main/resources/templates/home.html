@@ -1,58 +1,138 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>로그인</title>
+    <title>승차권 예매</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 상단 네비게이션 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003b4f;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .top-nav .left, .top-nav .right {
+            display: flex;
+            align-items: center; /* To align button properly */
+            gap: 20px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .top-nav a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Style for the logout button to match the links */
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .logout-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 중간 탭 메뉴 */
+        .tab-menu {
+            background-color: #007aad;
+            display: flex;
+            padding: 10px 20px;
+            gap: 30px;
+        }
+
+        .tab-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tab-menu a:hover {
+            border-bottom: 3px solid white;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-banner {
+            background-color: #0092cc;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .main-banner h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 2px 2px 4px #003b4f;
+        }
+    </style>
 </head>
 <body>
-    <h2>로그인</h2>
-    <form id="login-form">
-        <label for="username">아이디:</label>
-        <input type="text" id="username" name="username" required><br><br>
 
-        <label for="password">비밀번호:</label>
-        <input type="password" id="password" name="password" required><br><br>
+    <!-- 상단 네비게이션 -->
+    <div class="top-nav">
+        <div class="left">
+            <a href="#">한국철도</a>
+            <a href="#">승차권예매</a>
+            <a href="#">기차여행</a>
+        </div>
+        <div class="right" id="nav-right">
+            <a href="/login" id="login-link">로그인</a>
+            <a href="#">장바구니</a>
+            <a href="#">마이페이지</a>
+            <a href="#">고객센터</a>
+            <a href="#">기업전용</a>
+            <a href="#"> Language</a>
+        </div>
+    </div>
 
-        <button type="submit">로그인</button>
-    </form>
+    <!-- 탭 메뉴 -->
+    <div class="tab-menu">
+        <a href="#">승차권</a>
+        <a href="#">철도역열차</a>
+        <a href="#">고객서비스</a>
+        <a href="#">코레일멤버십</a>
+    </div>
 
-    <p id="result"></p>
-    
-    <div>
-        <a href="/signup">회원가입</a> |
-        <a href="/">홈으로</a>
+    <!-- 메인 배너 -->
+    <div class="main-banner">
+        <h1>승차권 예매</h1>
     </div>
 
     <script>
-        const form = document.getElementById('login-form');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const loginLink = document.getElementById('login-link');
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const result = await response.json();
-                document.getElementById('result').innerText = result.message;
-
-                if (response.ok && result.success) {
-                    // JWT 토큰을 localStorage에 저장
-                    localStorage.setItem('jwt-token', result.token);
-                    alert('로그인 성공!');
+            if (token) {
+                loginLink.innerHTML = '로그아웃';
+                loginLink.href = '#'; // Prevent navigation
+                loginLink.style.cursor = 'pointer';
+                loginLink.onclick = function() {
+                    localStorage.removeItem('token');
+                    alert('로그아웃되었습니다.');
                     window.location.href = '/home';
-                }
-            } catch (error) {
-                document.getElementById('result').innerText = '로그인 중 오류가 발생했습니다.';
+                };
             }
         });
     </script>
+
 </body>
 </html>
