@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+    <h2>로그인</h2>
+    <form id="login-form">
+        <label for="username">아이디:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">로그인</button>
+    </form>
+
+    <p id="result"></p>
+    
+    <div>
+        <a href="/signup">회원가입</a> |
+        <a href="/">홈으로</a>
+    </div>
+
+    <script>
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerText = result.message;
+
+                if (response.ok && result.success) {
+                    // JWT 토큰을 localStorage에 저장
+                    localStorage.setItem('jwt-token', result.token);
+                    alert('로그인 성공!');
+                    window.location.href = '/home';
+                }
+            } catch (error) {
+                document.getElementById('result').innerText = '로그인 중 오류가 발생했습니다.';
+            }
+        });
+    </script>
+</body>
+</html>

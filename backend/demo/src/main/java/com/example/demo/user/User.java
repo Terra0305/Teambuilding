@@ -1,6 +1,6 @@
 package com.example.demo.user;
 
-import jakarta.persistence.*; // jakarta.persistence.* 임포트
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,13 +9,27 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class User {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ★★★ 이 줄을 추가하세요!
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
 
-    // 데이터를 생성할 때는 ID를 직접 넣지 않으므로, 이 생성자를 사용합니다.
-    public User(String name) {
+    @Column(nullable = false, unique = true)
+    private String username; // 로그인 ID
+
+    @Column(nullable = false)
+    private String password; // 암호화된 비밀번호
+
+    @Column(nullable = false)
+    private String name; // 실제 이름
+
+    @Column(nullable = false)
+    private String role = "USER"; // 사용자 권한
+
+    // UserController가 필요로 하는 생성자
+    public User(String username, String password, String name) {
+        this.username = username;
+        this.password = password;
         this.name = name;
     }
 }

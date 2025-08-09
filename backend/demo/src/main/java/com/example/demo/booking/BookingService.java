@@ -1,5 +1,6 @@
 package com.example.demo.booking;
 
+import com.example.demo.booking.dto.BookingResponseDto;
 import com.example.demo.train.Train;
 import com.example.demo.train.TrainRepository;
 import com.example.demo.user.User;
