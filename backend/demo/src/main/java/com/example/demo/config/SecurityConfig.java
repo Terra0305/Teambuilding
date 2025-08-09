@@ -48,22 +48,22 @@ public class SecurityConfig {
                 // H2 콘솔과 정적 리소스는 무조건 허용
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                
-                // ✅ 기본 웹 페이지들 허용 (여기가 핵심!)
+
+                // ✅ 기본 웹 페이지들 허용
                 .requestMatchers("/", "/home", "/login", "/signup", "/login-success").permitAll()
-                
-                // ✅ 에러 페이지 허용 (이게 핵심!)
+
+                // ✅ 에러 페이지 허용
                 .requestMatchers("/error").permitAll()
-                
+
                 // 회원가입, 로그인 API는 무조건 허용
                 .requestMatchers("/api/signup", "/api/login").permitAll()
-                
-                // 기차 검색 API도 허용 (원하면 나중에 인증 필요하게 변경 가능)
-                .requestMatchers("/api/trains").permitAll()
-                
+
+                // ⭐ 기차 검색 API도 허용 (이게 핵심!)
+                .requestMatchers("/api/trains", "/api/trains/**").permitAll()
+
                 // 정적 파일들 (CSS, JS, 이미지 등) 허용
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
-                
+
                 // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
                 .anyRequest().authenticated()
             );

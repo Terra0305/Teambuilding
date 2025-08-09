@@ -4,11 +4,143 @@
     <meta charset="UTF-8">
     <title>로그인</title>
     <style>
-        /* CSS는 이전과 동일 */
+        body { 
+            margin: 0; 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: #f4f4f4; 
+        }
+        .top-nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background-color: #003b4f; 
+            color: white; 
+            padding: 10px 20px; 
+        }
+        .top-nav .left, .top-nav .right { 
+            display: flex; 
+            gap: 20px; 
+        }
+        .top-nav a { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 14px; 
+        }
+        .top-nav a:hover { 
+            text-decoration: underline; 
+        }
+        .tab-menu { 
+            background-color: #007aad; 
+            display: flex; 
+            padding: 10px 20px; 
+            gap: 30px; 
+        }
+        .tab-menu a { 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 16px; 
+        }
+        .tab-menu a:hover { 
+            border-bottom: 3px solid white; 
+        }
+        .main-content { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: calc(100vh - 160px); 
+        }
+        .login-container { 
+            background-color: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            width: 400px; 
+            text-align: center; 
+        }
+        .login-container h2 { 
+            color: #003b4f; 
+            margin-bottom: 30px; 
+        }
+        .login-container input[type="text"], 
+        .login-container input[type="password"] { 
+            width: calc(100% - 20px); 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        .login-container button { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 4px; 
+            background-color: #007aad; 
+            color: white; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin-bottom: 10px; 
+        }
+        .login-container button:hover { 
+            background-color: #005f8a; 
+        }
+        #result { 
+            color: red; 
+            margin-top: 15px; 
+        }
+        .signup-link {
+            margin-top: 20px;
+        }
+        .signup-link a {
+            color: #007aad;
+            text-decoration: none;
+        }
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    ...
+    <!-- 상단 네비게이션 -->
+    <div class="top-nav">
+        <div class="left">
+            <a href="#">한국철도</a>
+            <a href="#">승차권예매</a>
+            <a href="#">기차여행</a>
+        </div>
+        <div class="right">
+            <a href="/login">로그인</a>
+            <a href="#">장바구니</a>
+            <a href="#">마이페이지</a>
+            <a href="#">고객센터</a>
+            <a href="#">기업전용</a>
+            <a href="#"> Language</a>
+        </div>
+    </div>
+
+    <!-- 탭 메뉴 -->
+    <div class="tab-menu">
+        <a href="#">승차권</a>
+        <a href="#">철도역열차</a>
+        <a href="#">고객서비스</a>
+        <a href="#">코레일멤버십</a>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+        <div class="login-container">
+            <h2>로그인</h2>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <input type="text" id="username" name="username" placeholder="아이디" required><br>
+                <input type="password" id="password" name="password" placeholder="비밀번호" required><br>
+                <button type="submit">로그인</button>
+            </form>
+            <p id="result"></p>
+            <div class="signup-link">
+                <a href="/signup">회원가입하기</a>
+            </div>
+        </div>
+    </div>
 
     <script>
         async function handleLogin(event) {
@@ -18,7 +150,6 @@
             const password = document.getElementById('password').value;
 
             try {
-                // ★★★ 호출 주소를 '/login'에서 '/api/login'으로 수정 ★★★
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -35,6 +166,7 @@
                     document.getElementById('result').innerText = result.message;
                 }
             } catch (error) {
+                console.error('로그인 오류:', error);
                 document.getElementById('result').innerText = "로그인 중 오류가 발생했습니다.";
             }
         }

@@ -21,7 +21,7 @@
 
         .top-nav .left, .top-nav .right {
             display: flex;
-            align-items: center; /* To align button properly */
+            align-items: center;
             gap: 20px;
         }
 
@@ -34,8 +34,7 @@
         .top-nav a:hover {
             text-decoration: underline;
         }
-        
-        /* Style for the logout button to match the links */
+
         .logout-btn {
             background: none;
             border: none;
@@ -63,9 +62,10 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 16px;
+            cursor: pointer;
         }
 
-        .tab-menu a:hover {
+        .tab-menu a:hover, .tab-menu a.active {
             border-bottom: 3px solid white;
         }
 
@@ -81,6 +81,157 @@
             font-size: 36px;
             margin: 0;
             text-shadow: 2px 2px 4px #003b4f;
+        }
+
+        /* 승차권 검색 영역 */
+        .search-section {
+            background-color: white;
+            padding: 30px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #003b4f;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            padding: 10px 20px;
+            background-color: #007aad;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: fit-content;
+        }
+
+        .search-btn:hover {
+            background-color: #005f8a;
+        }
+
+        /* 승차권 목록 영역 */
+        .train-list {
+            margin: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .train-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .train-item:last-child {
+            border-bottom: none;
+        }
+
+        .train-info {
+            flex: 1;
+        }
+
+        .train-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #003b4f;
+            margin-bottom: 5px;
+        }
+
+        .train-route {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .train-time {
+            color: #007aad;
+            font-weight: bold;
+        }
+
+        .train-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-right: 20px;
+        }
+
+        .book-btn {
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .book-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .book-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #e74c3c;
+            background-color: #ffeaea;
+            margin: 20px;
+            border-radius: 4px;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 20px;
+            color: #27ae60;
+            background-color: #eafaf1;
+            margin: 20px;
+            border-radius: 4px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -105,7 +256,7 @@
 
     <!-- 탭 메뉴 -->
     <div class="tab-menu">
-        <a href="#">승차권</a>
+        <a href="#" id="ticket-tab" class="active">승차권</a>
         <a href="#">철도역열차</a>
         <a href="#">고객서비스</a>
         <a href="#">코레일멤버십</a>
@@ -116,22 +267,258 @@
         <h1>승차권 예매</h1>
     </div>
 
+    <!-- 승차권 검색 영역 -->
+    <div class="search-section">
+        <form class="search-form" id="search-form">
+            <div class="form-group">
+                <label for="origin">출발지</label>
+                <select id="origin" required>
+                    <option value="용산">용산</option>
+                    <option value="서울">서울</option>
+                    <option value="광주송정">광주송정</option>
+                    <option value="부산">부산</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="destination">도착지</label>
+                <select id="destination" required>
+                    <option value="광주송정">광주송정</option>
+                    <option value="용산">용산</option>
+                    <option value="서울">서울</option>
+                    <option value="부산">부산</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">출발일</label>
+                <input type="date" id="date" value="2025-08-03" required>
+            </div>
+            <button type="submit" class="search-btn">검색</button>
+        </form>
+    </div>
+
+    <!-- 메시지 영역 -->
+    <div id="error-message" class="error-message hidden"></div>
+    <div id="success-message" class="success-message hidden"></div>
+
+    <!-- 승차권 목록 영역 -->
+    <div class="train-list">
+        <div id="loading" class="loading">기차 정보를 불러오는 중...</div>
+        <div id="no-results" class="no-results hidden">검색 결과가 없습니다.</div>
+        <div id="train-results"></div>
+    </div>
+
     <script>
+        let currentUserId = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('token');
             const loginLink = document.getElementById('login-link');
 
+            // 로그인 상태 확인 및 사용자 정보 가져오기
             if (token) {
                 loginLink.innerHTML = '로그아웃';
-                loginLink.href = '#'; // Prevent navigation
+                loginLink.href = '#';
                 loginLink.style.cursor = 'pointer';
                 loginLink.onclick = function() {
                     localStorage.removeItem('token');
                     alert('로그아웃되었습니다.');
                     window.location.href = '/home';
                 };
+                
+                // 사용자 정보 가져오기 (userId 필요)
+                fetchUserInfo();
             }
+
+            // 기본 승차권 목록 로드
+            loadTrains();
+
+            // 검색 폼 이벤트
+            document.getElementById('search-form').addEventListener('submit', handleSearch);
         });
+
+        // 사용자 정보 가져오기
+        async function fetchUserInfo() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch('/api/my-roles', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    console.log('사용자 정보:', userInfo);
+                    // 실제로는 사용자 ID가 필요하지만, 테스트용으로 1로 설정
+                    currentUserId = 1; // DummyDataInitializer에서 생성한 user1의 ID
+                }
+            } catch (error) {
+                console.error('사용자 정보 가져오기 오류:', error);
+            }
+        }
+
+        // 기본 승차권 목록 로드
+        async function loadTrains() {
+            showLoading();
+            try {
+                const response = await fetch('/api/trains?origin=용산&destination=광주송정&date=2025-08-03');
+                
+                if (response.ok) {
+                    const trains = await response.json();
+                    displayTrains(trains);
+                } else {
+                    showError('승차권 정보를 불러오는데 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('승차권 로드 오류:', error);
+                showError('승차권 정보를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 검색 폼 처리
+        async function handleSearch(event) {
+            event.preventDefault();
+            
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const date = document.getElementById('date').value;
+
+            showLoading();
+            hideMessages();
+
+            try {
+                const response = await fetch(`/api/trains?origin=${origin}&destination=${destination}&date=${date}`);
+                
+                if (response.ok) {
+                    const trains = await response.json();
+                    displayTrains(trains);
+                } else {
+                    showError('검색 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showError('검색 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 승차권 목록 표시
+        function displayTrains(trains) {
+            hideLoading();
+            
+            const resultsContainer = document.getElementById('train-results');
+            const noResults = document.getElementById('no-results');
+
+            if (trains.length === 0) {
+                resultsContainer.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            
+            resultsContainer.innerHTML = trains.map(train => `
+                <div class="train-item">
+                    <div class="train-info">
+                        <div class="train-number">${train.trainNumber}</div>
+                        <div class="train-route">${train.origin} → ${train.destination}</div>
+                        <div class="train-time">
+                            ${formatDateTime(train.departureTime)} → ${formatDateTime(train.arrivalTime)}
+                        </div>
+                    </div>
+                    <div class="train-price">
+                        ${train.price.toLocaleString()}원
+                    </div>
+                    <button class="book-btn" onclick="bookTrain(${train.id})" ${!currentUserId ? 'disabled' : ''}>
+                        ${currentUserId ? '예매하기' : '로그인 필요'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 승차권 예매
+        async function bookTrain(trainId) {
+            if (!currentUserId) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        trainId: trainId
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.text();
+                    showSuccess('예매가 완료되었습니다!');
+                } else {
+                    const error = await response.text();
+                    showError('예매 중 오류가 발생했습니다: ' + error);
+                }
+            } catch (error) {
+                console.error('예매 오류:', error);
+                showError('예매 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 유틸리티 함수들
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('no-results').classList.add('hidden');
+            document.getElementById('train-results').innerHTML = '';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showError(message) {
+            hideMessages();
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function showSuccess(message) {
+            hideMessages();
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.classList.remove('hidden');
+            setTimeout(() => successDiv.classList.add('hidden'), 3000);
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
     </script>
 
 </body>

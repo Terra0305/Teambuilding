@@ -1,6 +1,6 @@
 package com.example.demo.config.jwt;
 
-import com.example.demo.security.UserDetailsServiceImpl; // ★★★ 주소 변경
+import com.example.demo.security.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,15 +30,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = parseToken(request);
+        try {
+            // ⭐ 인증이 필요하지 않은 경로는 건너뛰기
+            String requestURI = request.getRequestURI();
+            if (isPublicPath(requestURI)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        if (token != null && jwtUtil.validateToken(token)) {
-            String username = jwtUtil.getUsernameFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = parseToken(request);
+
+            if (token != null && jwtUtil.validateToken(token)) {
+                String username = jwtUtil.getUsernameFromToken(token);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("JWT Filter 오류: " + e.getMessage());
+            // 오류가 발생해도 계속 진행 (인증되지 않은 상태로)
         }
 
         filterChain.doFilter(request, response);
@@ -50,5 +67,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return header.substring(7);
         }
         return null;
+    }
+
+    // ⭐ 인증이 필요하지 않은 경로 체크
+    private boolean isPublicPath(String path) {
+        return path.startsWith("/api/trains") ||
+               path.startsWith("/api/signup") ||
+               path.startsWith("/api/login") ||
+               path.startsWith("/h2-console") ||
+               path.startsWith("/error") ||
+               path.equals("/") ||
+               path.equals("/home") ||
+               path.equals("/login") ||
+               path.equals("/signup") ||
+               path.equals("/login-success") ||
+               path.startsWith("/css/") ||
+               path.startsWith("/js/") ||
+               path.startsWith("/images/") ||
+               path.startsWith("/static/");
     }
 }
