@@ -21,6 +21,7 @@
 
         .top-nav .left, .top-nav .right {
             display: flex;
+            align-items: center; /* To align button properly */
             gap: 20px;
         }
 
@@ -31,6 +32,21 @@
         }
 
         .top-nav a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Style for the logout button to match the links */
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .logout-btn:hover {
             text-decoration: underline;
         }
 
@@ -77,8 +93,8 @@
             <a href="#">승차권예매</a>
             <a href="#">기차여행</a>
         </div>
-        <div class="right">
-            <a href="/login">로그인</a>
+        <div class="right" id="nav-right">
+            <a href="/login" id="login-link">로그인</a>
             <a href="#">장바구니</a>
             <a href="#">마이페이지</a>
             <a href="#">고객센터</a>
@@ -99,6 +115,24 @@
     <div class="main-banner">
         <h1>승차권 예매</h1>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const loginLink = document.getElementById('login-link');
+
+            if (token) {
+                loginLink.innerHTML = '로그아웃';
+                loginLink.href = '#'; // Prevent navigation
+                loginLink.style.cursor = 'pointer';
+                loginLink.onclick = function() {
+                    localStorage.removeItem('token');
+                    alert('로그아웃되었습니다.');
+                    window.location.href = '/home';
+                };
+            }
+        });
+    </script>
 
 </body>
 </html>
