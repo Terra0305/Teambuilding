@@ -301,7 +301,7 @@
     <div id="success-message" class="success-message hidden"></div>
 
     <!-- 승차권 목록 영역 -->
-    <div class="train-list">
+    <div class="train-list hidden" id="train-list-section">
         <div id="loading" class="loading">기차 정보를 불러오는 중...</div>
         <div id="no-results" class="no-results hidden">검색 결과가 없습니다.</div>
         <div id="train-results"></div>
@@ -313,6 +313,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('token');
             const loginLink = document.getElementById('login-link');
+            const trainListSection = document.getElementById('train-list-section');
 
             // 로그인 상태 확인 및 사용자 정보 가져오기
             if (token) {
@@ -328,9 +329,6 @@
                 // 사용자 정보 가져오기 (userId 필요)
                 fetchUserInfo();
             }
-
-            // 기본 승차권 목록 로드
-            loadTrains();
 
             // 검색 폼 이벤트
             document.getElementById('search-form').addEventListener('submit', handleSearch);
@@ -387,6 +385,7 @@
 
             showLoading();
             hideMessages();
+            document.getElementById('train-list-section').classList.remove('hidden'); // Ensure list is visible on search
 
             try {
                 const response = await fetch(`/api/trains?origin=${origin}&destination=${destination}&date=${date}`);
