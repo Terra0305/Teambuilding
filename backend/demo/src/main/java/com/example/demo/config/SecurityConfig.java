@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 
                 // ✅ 기본 웹 페이지들 허용
-                .requestMatchers("/", "/home", "/login", "/signup", "/login-success").permitAll()
+                .requestMatchers("/", "/home", "/login", "/signup", "/login-success", "/mypage").permitAll()
 
                 // ✅ 에러 페이지 허용
                 .requestMatchers("/error").permitAll()

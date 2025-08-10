@@ -13,7 +13,10 @@ public class BookingResponseDto {
     private final String origin;
     private final String destination;
     private final LocalDateTime departureTime;
+    private final int price;
+    private final LocalDateTime arrivalTime;
     private final LocalDateTime bookingDate;
+    private final String status; // BookingStatus Enum의 이름을 String으로 저장
 
     // Booking 엔티티를 이 DTO로 변환하는 생성자
     public BookingResponseDto(Booking booking) {
@@ -23,6 +26,9 @@ public class BookingResponseDto {
         this.origin = train.getOrigin();
         this.destination = train.getDestination();
         this.departureTime = train.getDepartureTime();
+        this.arrivalTime = train.getArrivalTime();
+        this.price = train.getPrice();
         this.bookingDate = booking.getBookingDate();
+        this.status = booking.getStatus().name(); // BookingStatus Enum의 이름을 String으로 변환하여 저장
     }
 }

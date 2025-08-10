@@ -35,4 +35,21 @@ public class BookingService {
                 .map(BookingResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+    
+
+    @Transactional
+    public void cancelBooking(Long bookingId, Long userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예매입니다."));
+
+        // 예매를 취소하려는 사용자가 해당 예매의 소유자인지 확인
+        if (!booking.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("예매 취소 권한이 없습니다.");
+        }
+
+        // 예매 상태를 CANCELED로 변경
+        booking.setStatus(BookingStatus.CANCELED);
+        bookingRepository.save(booking); // 변경된 상태 저장
+    }
 }

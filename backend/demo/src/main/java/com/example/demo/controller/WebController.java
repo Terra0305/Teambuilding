@@ -23,6 +23,11 @@ public class WebController {
         return "home";
     }
 
+    @GetMapping("/mypage")
+    public String mypage() {
+        return "mypage";
+    }
+
     // ★★★ 이 부분을 수정! ★★★
     @GetMapping("/login-success")
     public String loginSuccessPage(Authentication authentication, Model model) {
@@ -31,7 +36,7 @@ public class WebController {
             String username = authentication.getName();
             model.addAttribute("username", username);
         }
-        return "login-success";
+        return "redirect:/home";
     }
 
     @GetMapping("/")

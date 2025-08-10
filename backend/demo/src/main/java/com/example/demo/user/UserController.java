@@ -59,18 +59,4 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ★★★ 기존 디버깅용 테스트 API 그대로 유지 ★★★
-    @GetMapping("/my-roles")
-    public ResponseEntity<Map<String, Object>> getMyRoles(@AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new HashMap<>();
-        if (userDetails == null) {
-            response.put("error", "로그인되지 않은 사용자입니다.");
-            return ResponseEntity.status(401).body(response);
-        }
-        response.put("username", userDetails.getUsername());
-        response.put("authorities", userDetails.getAuthorities().stream()
-                                            .map(GrantedAuthority::getAuthority)
-                                            .collect(Collectors.toList()));
-        return ResponseEntity.ok(response);
     }
-}
