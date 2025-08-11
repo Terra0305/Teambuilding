@@ -44,3 +44,8 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += '-parameters'
     options.encoding = 'UTF-8'
 }
+
+// 실행 불가능한 -plain.jar 파일은 생성하지 않도록 설정
+jar {
+    enabled = false
+}
