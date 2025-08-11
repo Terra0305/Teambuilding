@@ -38,6 +38,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
         
+        
         // 추가: 비밀번호 확인 체크
         if (request.getPassword() == null || request.getPasswordConfirm() == null || 
             !request.getPassword().equals(request.getPasswordConfirm())) {
