@@ -1,0 +1,162 @@
+openapi: 3.0.1
+info:
+  title: "Teambuilding Project API"
+  description: |
+    팀빌딩 프로젝트를 위한 API 명세서입니다.
+    이 문서는 사용자 인증(회원가입, 로그인)과 관련된 API를 상세히 설명합니다.
+    가이드라인에 따라 명확한 커뮤니케이션을 위해 작성되었습니다.
+  version: "1.0.1"
+  contact:
+    name: "Project Team"
+    email: "dev@example.com"
+
+servers:
+  - url: "http://localhost:8080"
+    description: "로컬 개발 서버"
+
+tags:
+  - name: "User Authentication"
+    description: "사용자 계정 생성 및 인증을 위한 API"
+
+paths:
+  /api/signup:
+    post:
+      summary: "회원가입"
+      description: "새로운 사용자 계정을 시스템에 등록합니다."
+      tags:
+        - "User Authentication"
+      requestBody:
+        description: "회원가입에 필요한 사용자 정보"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        '200':
+          description: "회원가입이 성공적으로 완료되었습니다."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        '400':
+          description: "잘못된 요청입니다. (예: 아이디 중복, 비밀번호 불일치)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/login:
+    post:
+      summary: "로그인"
+      description: "사용자 이름과 비밀번호로 인증하고, 인증 성공 시 JWT를 발급합니다."
+      tags:
+        - "User Authentication"
+      requestBody:
+        description: "로그인에 필요한 사용자 자격 증명"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: "로그인 성공 및 JWT 토큰 발급"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSuccessResponse"
+        '401':
+          description: "인증 실패. 아이디 또는 비밀번호가 올바르지 않습니다."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "API 접근을 위한 JWT. 'Bearer {token}' 형식으로 입력해주세요."
+
+  schemas:
+    SignupRequest:
+      type: object
+      title: "회원가입 요청"
+      required:
+        - username
+        - password
+        - passwordConfirm
+      properties:
+        username:
+          type: string
+          description: "사용자 아이디"
+          example: "newUser"
+        password:
+          type: string
+          description: "사용자 비밀번호"
+          format: password
+          example: "password123"
+        passwordConfirm:
+          type: string
+          description: "비밀번호 확인"
+          format: password
+          example: "password123"
+
+    LoginRequest:
+      type: object
+      title: "로그인 요청"
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: "사용자 아이디"
+          example: "testuser"
+        password:
+          type: string
+          description: "사용자 비밀번호"
+          format: password
+          example: "password123"
+
+    LoginSuccessResponse:
+      type: object
+      title: "로그인 성공 응답"
+      properties:
+        success:
+          type: boolean
+          description: "성공 여부"
+          example: true
+        token:
+          type: string
+          description: "발급된 JWT"
+          example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTYxNjQ0NjYyMiwiZXhwIjoxNjE2NDUwMjIyfQ.xxxxxxxx"
+
+    SuccessResponse:
+      type: object
+      title: "일반 성공 응답"
+      properties:
+        success:
+          type: boolean
+          description: "성공 여부"
+          example: true
+        message:
+          type: string
+          description: "응답 메시지"
+          example: "회원가입 성공"
+
+    ErrorResponse:
+      type: object
+      title: "오류 응답"
+      properties:
+        success:
+          type: boolean
+          description: "성공 여부"
+          example: false
+        message:
+          type: string
+          description: "오류 메시지"
+          example: "아이디 또는 비밀번호가 일치하지 않습니다."
