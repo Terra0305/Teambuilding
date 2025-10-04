@@ -45,8 +45,7 @@ public class SecurityConfig {
         // URL 별 접근 권한 설정
         http
             .authorizeHttpRequests(auth -> auth
-                // H2 콘솔과 정적 리소스는 무조건 허용
-                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                // 정적 리소스는 무조건 허용
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 
                 // ✅ 기본 웹 페이지들 허용
@@ -66,12 +65,6 @@ public class SecurityConfig {
 
                 // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
                 .anyRequest().authenticated()
-            );
-
-        // H2 콘솔은 프레임을 사용하므로, 관련 헤더 설정 허용
-        http
-            .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions.sameOrigin())
             );
 
         // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
