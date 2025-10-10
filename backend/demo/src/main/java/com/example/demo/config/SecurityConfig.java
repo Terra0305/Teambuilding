@@ -50,6 +50,9 @@ public class SecurityConfig {
 
                 // ✅ 기본 웹 페이지들 허용
                 .requestMatchers("/", "/home", "/login", "/signup", "/login-success", "/mypage").permitAll()
+                
+                // ✅ 챗봇 페이지 허용
+                .requestMatchers("/chatbot.html", "/chatbot").permitAll()
 
                 // ✅ 에러 페이지 허용
                 .requestMatchers("/error").permitAll()
@@ -61,7 +64,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/trains", "/api/trains/**").permitAll()
 
                 // 정적 파일들 (CSS, JS, 이미지 등) 허용
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico", "/*.html").permitAll()
 
                 // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
                 .anyRequest().authenticated()

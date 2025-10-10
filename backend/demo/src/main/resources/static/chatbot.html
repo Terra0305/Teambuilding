@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기차 예매 챗봇</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .auth-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .auth-section.hidden {
+            display: none;
+        }
+
+        .auth-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .auth-form input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .auth-form button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .auth-form button:hover {
+            background: #5568d3;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #667eea;
+            margin-left: 10px;
+        }
+
+        .message.assistant .message-avatar {
+            background: #28a745;
+            margin-right: 10px;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .loading {
+            display: none;
+            padding: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-form input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .input-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-form input:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .input-form button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .input-form button:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .input-form button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-action:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚄 기차 예매 챗봇</h1>
+            <p>AI가 기차 검색부터 예매까지 도와드립니다</p>
+        </div>
+
+        <div class="auth-section" id="authSection">
+            <div id="loginForm" class="auth-form">
+                <input type="text" id="username" placeholder="아이디" />
+                <input type="password" id="password" placeholder="비밀번호" />
+                <button onclick="login()">로그인</button>
+                <button onclick="showSignup()" style="background: #28a745;">회원가입</button>
+            </div>
+            <div id="signupForm" class="auth-form" style="display: none;">
+                <input type="text" id="signupUsername" placeholder="아이디" />
+                <input type="password" id="signupPassword" placeholder="비밀번호" />
+                <input type="password" id="signupPasswordConfirm" placeholder="비밀번호 확인" />
+                <button onclick="signup()" style="background: #28a745;">가입</button>
+                <button onclick="showLogin()">로그인으로</button>
+            </div>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span>👤 <strong id="currentUser"></strong>님 환영합니다!</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">안녕하세요! 기차 예매를 도와드리는 AI 어시스턴트입니다.<br><br>예시:<br>• "8월 3일 용산에서 광주송정 가는 기차 찾아줘"<br>• "내 예매 내역 보여줘"</div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">AI가 생각중입니다</div>
+
+        <div class="input-area">
+            <div class="input-form">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="메시지를 입력하세요... (먼저 로그인해주세요)"
+                    disabled
+                    onkeypress="if(event.key==='Enter') sendMessage()"
+                />
+                <button id="sendBtn" onclick="sendMessage()" disabled>전송</button>
+            </div>
+            <div class="quick-actions">
+                <div class="quick-action" onclick="quickMessage('8월 3일 용산에서 광주송정 가는 기차 찾아줘')">🔍 기차 검색</div>
+                <div class="quick-action" onclick="quickMessage('내 예매 내역 보여줘')">📋 예매 내역</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // sessionStorage 사용 (브라우저 탭 닫으면 자동 로그아웃)
+        let token = sessionStorage.getItem('jwt_token');
+        let username = sessionStorage.getItem('username');
+
+        if (token && username) {
+            setLoggedIn(username);
+        }
+
+        async function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+
+            if (!username || !password || !passwordConfirm) {
+                alert('모든 필드를 입력해주세요');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, passwordConfirm })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('회원가입 성공! 로그인해주세요.');
+                    showLogin();
+                } else {
+                    alert(data.message || '회원가입 실패');
+                }
+            } catch (error) {
+                alert('오류: ' + error.message);
+            }
+        }
+
+        async function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            if (!user || !pass) {
+                alert('아이디와 비밀번호를 입력해주세요');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    token = data.token;
+                    username = user;
+                    // sessionStorage 사용
+                    sessionStorage.setItem('jwt_token', token);
+                    sessionStorage.setItem('username', username);
+                    setLoggedIn(username);
+                } else {
+                    alert(data.message || '로그인 실패');
+                }
+            } catch (error) {
+                alert('오류: ' + error.message);
+            }
+        }
+
+        function logout() {
+            token = null;
+            username = null;
+            // sessionStorage 사용
+            sessionStorage.removeItem('jwt_token');
+            sessionStorage.removeItem('username');
+            setLoggedOut();
+        }
+
+        function setLoggedIn(user) {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('messageInput').placeholder = '메시지를 입력하세요...';
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('currentUser').textContent = user;
+            document.getElementById('userInfo').style.display = 'flex';
+        }
+
+        function setLoggedOut() {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('messageInput').placeholder = '메시지를 입력하세요... (먼저 로그인해주세요)';
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('userInfo').style.display = 'none';
+            showLogin();
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'flex';
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'flex';
+            document.getElementById('signupForm').style.display = 'none';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+            if (!token) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            const loading = document.getElementById('loading');
+            loading.classList.add('show');
+
+            try {
+                const response = await fetch('/api/chatbot/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.message, 'assistant');
+                } else {
+                    addMessage('오류: ' + (data.message || '알 수 없는 오류'), 'assistant');
+                }
+            } catch (error) {
+                addMessage('오류: ' + error.message, 'assistant');
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+
+        function quickMessage(msg) {
+            if (!token) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            document.getElementById('messageInput').value = msg;
+            sendMessage();
+        }
+
+        function addMessage(text, role) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? '👤' : '🤖';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${escapeHtml(text)}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+</html>

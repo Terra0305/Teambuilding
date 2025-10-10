@@ -1,0 +1,7 @@
+        let token = sessionStorage.getItem('jwt_token');
+        let username = sessionStorage.getItem('username');
+
+        // 페이지 로드 시 로그인 상태 확인
+        if (token && username) {
+            setLoggedIn(username);
+        }

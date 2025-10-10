@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +26,6 @@ public class DummyDataInitializer implements CommandLineRunner {
         try {
             System.out.println("=== DummyDataInitializer 시작 ===");
             
-            // 기존 데이터 확인
             long existingTrainCount = trainRepository.count();
             long existingUserCount = userRepository.count();
             System.out.println("기존 기차 데이터 개수: " + existingTrainCount);
@@ -35,40 +37,78 @@ public class DummyDataInitializer implements CommandLineRunner {
                 User user = new User("user1", passwordEncoder.encode("password123"), "박성민");
                 userRepository.save(user);
                 System.out.println("사용자 생성 완료: " + user.getUsername());
-            } else {
-                System.out.println("기존 사용자가 존재하므로 사용자 생성 건너뜀");
             }
             
-            // 기차 데이터 생성
+            // 기차 데이터 대량 생성
             if (existingTrainCount == 0) {
-                System.out.println("기차 데이터 생성 중...");
+                System.out.println("대량 기차 데이터 생성 중...");
                 
-                Train train1 = new Train("KTX_405", "용산", "광주송정", 
-                    LocalDateTime.of(2025, 8, 3, 15, 0), 
-                    LocalDateTime.of(2025, 8, 3, 16, 50), 48000);
-                Train train2 = new Train("KTX_407", "용산", "광주송정", 
-                    LocalDateTime.of(2025, 8, 3, 16, 0), 
-                    LocalDateTime.of(2025, 8, 3, 17, 50), 48000);
+                List<Train> trains = new ArrayList<>();
                 
-                trainRepository.save(train1);
-                trainRepository.save(train2);
+                // 주요 노선 정의
+                String[][] routes = {
+                    {"용산", "광주송정"},
+                    {"서울", "부산"},
+                    {"용산", "대전"},
+                    {"서울", "대구"},
+                    {"용산", "목포"},
+                    {"서울", "광주송정"},
+                    {"용산", "부산"},
+                    {"서울", "동대구"}
+                };
                 
-                System.out.println("기차 1 생성: " + train1.getTrainNumber() + " (" + train1.getDepartureTime() + ")");
-                System.out.println("기차 2 생성: " + train2.getTrainNumber() + " (" + train2.getDepartureTime() + ")");
+                // 2024년 1월 1일부터 2025년 10월 3일까지
+                LocalDate startDate = LocalDate.of(2024, 1, 1);
+                LocalDate endDate = LocalDate.of(2025, 10, 3);
                 
-                // 추가로 오늘 날짜 데이터도 생성
-                LocalDateTime today = LocalDateTime.now();
-                Train todayTrain = new Train("KTX_TODAY", "용산", "광주송정",
-                    today.withHour(15).withMinute(0).withSecond(0).withNano(0),
-                    today.withHour(16).withMinute(50).withSecond(0).withNano(0), 48000);
-                trainRepository.save(todayTrain);
-                System.out.println("오늘 날짜 기차 생성: " + todayTrain.getTrainNumber() + " (" + todayTrain.getDepartureTime() + ")");
+                int trainCount = 0;
                 
-            } else {
-                System.out.println("기존 기차가 존재하므로 기차 생성 건너뜀");
+                // 각 날짜에 대해
+                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                    
+                    // 각 노선에 대해
+                    for (String[] route : routes) {
+                        String origin = route[0];
+                        String destination = route[1];
+                        
+                        // 하루에 6편씩 (06시, 09시, 12시, 15시, 18시, 21시)
+                        int[] hours = {6, 9, 12, 15, 18, 21};
+                        
+                        for (int hour : hours) {
+                            LocalDateTime departureTime = date.atTime(hour, 0);
+                            LocalDateTime arrivalTime = departureTime.plusHours(2).plusMinutes(30);
+                            
+                            String trainNumber = String.format("KTX_%s_%02d%02d_%02d", 
+                                origin.substring(0, 1), 
+                                date.getMonthValue(), 
+                                date.getDayOfMonth(),
+                                hour);
+                            
+                            int price = 40000 + (int)(Math.random() * 20000); // 40000~60000원
+                            
+                            Train train = new Train(trainNumber, origin, destination, 
+                                departureTime, arrivalTime, price);
+                            trains.add(train);
+                            trainCount++;
+                            
+                            // 1000개마다 저장 (메모리 효율)
+                            if (trains.size() >= 1000) {
+                                trainRepository.saveAll(trains);
+                                trains.clear();
+                                System.out.println("진행 중... " + trainCount + "개 생성됨");
+                            }
+                        }
+                    }
+                }
+                
+                // 남은 데이터 저장
+                if (!trains.isEmpty()) {
+                    trainRepository.saveAll(trains);
+                }
+                
+                System.out.println("총 " + trainCount + "개의 기차 생성 완료!");
             }
             
-            // 최종 상태 확인
             long finalTrainCount = trainRepository.count();
             long finalUserCount = userRepository.count();
             System.out.println("=== 초기화 완료 ===");
