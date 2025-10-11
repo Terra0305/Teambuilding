@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 
                 // ✅ 기본 웹 페이지들 허용
-                .requestMatchers("/", "/home", "/login", "/signup", "/login-success", "/mypage").permitAll()
+                .requestMatchers("/", "/home", "/login", "/signup", "/login-success", "/mypage", "/dummy/**").permitAll()
 
                 // ✅ 에러 페이지 허용
                 .requestMatchers("/error").permitAll()
@@ -59,6 +59,9 @@ public class SecurityConfig {
 
                 // ⭐ 기차 검색 API도 허용 (이게 핵심!)
                 .requestMatchers("/api/trains", "/api/trains/**").permitAll()
+
+                // ✅ 프로토타입 HTML 파일 허용
+                .requestMatchers("/voice-prototype.html", "/chat-prototype.html", "/train-reserve").permitAll()
 
                 // 정적 파일들 (CSS, JS, 이미지 등) 허용
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico").permitAll()

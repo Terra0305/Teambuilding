@@ -8,39 +8,54 @@ import org.springframework.security.core.Authentication;
 @Controller
 public class WebController {
 
+    // --- Real Site ---
+    @GetMapping("/")
+    public String index() {
+        return "snt_home";
+    }
+
+    @GetMapping("/login")
+    public String sntLoginPage() {
+        return "snt_login";
+    }
+
     @GetMapping("/signup")
-    public String signupPage() {
+    public String sntSignupPage() {
+        return "snt_signup";
+    }
+
+    @GetMapping("/train-reserve")
+    public String sntTrainReservePage() {
+        return "snt_trainReserve";
+    }
+
+    // --- Dummy Site ---
+    @GetMapping("/dummy")
+    public String dummyHomePage() {
+        return "home"; // /dummy 경로에서 기존 home.html을 보여줌
+    }
+
+    @GetMapping("/dummy/signup")
+    public String dummySignupPage() {
         return "signup";
     }
     
-    @GetMapping("/login")
-    public String loginPage() {
+    @GetMapping("/dummy/login")
+    public String dummyLoginPage() {
         return "login";
     }
 
-    @GetMapping("/home")
-    public String homePage() {
-        return "home";
-    }
-
-    @GetMapping("/mypage")
-    public String mypage() {
+    @GetMapping("/dummy/mypage")
+    public String dummyMypage() {
         return "mypage";
     }
 
-    // ★★★ 이 부분을 수정! ★★★
-    @GetMapping("/login-success")
-    public String loginSuccessPage(Authentication authentication, Model model) {
+    @GetMapping("/dummy/login-success")
+    public String dummyLoginSuccessPage(Authentication authentication, Model model) {
         if (authentication != null && authentication.isAuthenticated()) {
-            // JWT 기반이므로 authentication.getName()으로 username을 가져옵니다
             String username = authentication.getName();
             model.addAttribute("username", username);
         }
-        return "redirect:/home";
-    }
-
-    @GetMapping("/")
-    public String index() {
-        return "home";
+        return "redirect:/dummy"; // Redirect to the dummy home page
     }
 }

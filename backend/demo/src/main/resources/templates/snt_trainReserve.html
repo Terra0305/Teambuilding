@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>손에딱 기차예매</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* 상단 로그아웃 버튼 */
+    .logout-btn {
+      align-self: flex-end;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .logout-btn:hover { background: #333; }
+
+    /* 로고/제목 */
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 30px;
+      font-weight: 800;
+      margin-top: 24px;
+      line-height: 1.2;
+      flex-direction: column;
+      text-align: center;
+    }
+    .title-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .title img { width: 32px; height: 32px; }
+    .subtitle {
+      font-size: 22px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* 버튼 영역 */
+    .button-container {
+      display: flex;
+      gap: 14px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .main-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      text-decoration: none; /* 링크 밑줄 제거 */
+      text-align: center; /* 텍스트 중앙 정렬 */
+    }
+    .voice-btn { background-color: #00b4ff; }
+    .chat-btn { background-color: #0058d4; }
+    .main-btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+  <button class="logout-btn">로그아웃</button>
+
+  <div class="title">
+    <div class="title-top">
+      손에딱
+      <img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png" alt="손 아이콘">
+    </div>
+    <div class="subtitle">기차예매</div>
+  </div>
+
+  <div class="button-container">
+    <a href="/voice-prototype.html" class="main-btn voice-btn">음성 예매</a>
+    <a href="/chat-prototype.html" class="main-btn chat-btn">채팅 예매</a>
+  </div>
+
+</body>
+</html>

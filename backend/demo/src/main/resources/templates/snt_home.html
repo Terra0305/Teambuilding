@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>손에딱 메인</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* 로그인 버튼 */
+    .login-btn {
+      align-self: flex-end;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none; /* 링크 밑줄 제거 */
+    }
+
+    .login-btn:hover {
+      background-color: #333;
+    }
+
+    /* 로고/타이틀 */
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      font-size: 42px;
+      font-weight: 800;
+    }
+
+    .title img {
+      width: 60px;
+      height: 60px;
+    }
+
+    /* 버튼 영역 */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 10px;
+    }
+
+    .main-btn {
+      width: 100%;
+      padding: 28px 0;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: transform 0.15s ease-in-out;
+      text-decoration: none; /* 링크 밑줄 제거 */
+      text-align: center; /* 텍스트 중앙 정렬 */
+    }
+
+    .main-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .train-btn {
+      background-color: #5bc2ff;
+    }
+
+    .bus-btn {
+      background-color: #00b27a;
+    }
+
+    .ticket-btn {
+      background-color: #ffcc00;
+      color: #000;
+      width: 100%;
+      margin-top: 20px;
+      padding: 28px 0;
+      border-radius: 18px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease-in-out;
+      text-decoration: none; /* 링크 밑줄 제거 */
+      text-align: center; /* 텍스트 중앙 정렬 */
+    }
+
+    .ticket-btn:hover {
+      background-color: #e6b800;
+      transform: scale(1.05);
+    }
+
+    /* 반응형: 작은 화면에서도 꽉 차게 */
+    @media (max-width: 480px) {
+      .title {
+        font-size: 36px;
+      }
+
+      .title img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .main-btn, .ticket-btn {
+        font-size: 20px;
+        padding: 24px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/login" class="login-btn">로그인</a>
+
+  <div class="title">
+    손에딱
+    <img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png" alt="손 아이콘">
+  </div>
+
+  <div class="button-container">
+    <a href="/train-reserve" class="main-btn train-btn">기차예매</a>
+    <button class="main-btn bus-btn">버스예매</button>
+    <button class="ticket-btn">승차권 확인</button>
+  </div>
+
+</body>
+</html>

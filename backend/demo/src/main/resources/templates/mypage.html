@@ -154,14 +154,14 @@
     <!-- 상단 네비게이션 -->
     <div class="top-nav">
         <div class="left">
-            <a href="/home">한국철도</a>
-            <a href="/home">승차권예매</a>
+            <a href="/dummy">한국철도</a>
+            <a href="/dummy">승차권예매</a>
             <a href="#">기차여행</a>
         </div>
         <div class="right" id="nav-right">
-            <a href="/login" id="login-link">로그인</a>
+            <a href="/dummy/login" id="login-link">로그인</a>
             <a href="#">장바구니</a>
-            <a href="/mypage" id="mypage-link">마이페이지</a>
+            <a href="/dummy/mypage" id="mypage-link">마이페이지</a>
             <a href="#">고객센터</a>
             <a href="#">기업전용</a>
             <a href="#"> Language</a>
@@ -184,7 +184,7 @@
 
             if (!token) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '/login';
+                window.location.href = '/dummy/login';
                 return;
             }
 
@@ -196,7 +196,7 @@
                 loginLink.onclick = function() {
                     localStorage.removeItem('token');
                     alert('로그아웃되었습니다.');
-                    window.location.href = '/home';
+                    window.location.href = '/dummy';
                 };
             }
 
@@ -231,7 +231,7 @@
                 } else if (response.status === 401) {
                     alert('인증이 필요합니다. 다시 로그인해주세요.');
                     localStorage.removeItem('token');
-                    window.location.href = '/login';
+                    window.location.href = '/dummy/login';
                 } else {
                     alert('예매 내역을 불러오는데 실패했습니다.');
                     console.error('Failed to fetch bookings:', response.status, await response.text());
@@ -280,7 +280,7 @@
                 const token = localStorage.getItem('token');
                 if (!token) {
                     alert('로그인이 필요합니다.');
-                    window.location.href = '/login';
+                    window.location.href = '/dummy/login';
                     return;
                 }
 
@@ -298,7 +298,7 @@
                     } else if (response.status === 401) {
                         alert('인증이 필요합니다. 다시 로그인해주세요.');
                         localStorage.removeItem('token');
-                        window.location.href = '/login';
+                        window.location.href = '/dummy/login';
                     } else if (response.status === 403) {
                         alert('예매 취소 권한이 없습니다.');
                     } else if (response.status === 404) {

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>챗봇 프로토타입</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        h1 { text-align: center; }
+        #chat-history {
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            color: black;
+            align-self: flex-start;
+            white-space: pre-wrap; /* Allow newlines in bot response */
+        }
+        #chat-form {
+            display: flex;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #send-button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        #login-status {
+            text-align: center;
+            padding: 10px;
+            background-color: #fffde7;
+            border: 1px solid #ffc107;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>챗봇 프로토타입</h1>
+    <div id="login-status">로그인 상태를 확인 중입니다...</div>
+
+    <div id="chat-history"></div>
+
+    <form id="chat-form">
+        <input type="text" id="message-input" placeholder="메시지를 입력하세요..." autocomplete="off" required>
+        <button type="submit" id="send-button">전송</button>
+    </form>
+
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const loginStatusDiv = document.getElementById('login-status');
+
+        // 페이지 로드 시 로그인 상태 확인 및 기록 불러오기
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                loginStatusDiv.innerHTML = '로그인이 필요합니다. <a href="/login">로그인 페이지로 이동</a>';
+                messageInput.disabled = true;
+                document.getElementById('send-button').disabled = true;
+                return;
+            }
+            loginStatusDiv.textContent = '로그인되었습니다. 채팅 기록을 불러옵니다...';
+            await loadChatHistory(token);
+        });
+
+        // 채팅 기록 불러오기 함수
+        async function loadChatHistory(token) {
+            try {
+                const response = await fetch('/api/chat/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('jwt');
+                    loginStatusDiv.innerHTML = '세션이 만료되었습니다. <a href="/login.html">다시 로그인해주세요.</a>';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error('채팅 기록을 불러오는 데 실패했습니다.');
+                }
+
+                const messages = await response.json();
+                chatHistory.innerHTML = '';
+                messages.forEach(msg => addMessageToHistory(msg.sender, msg.content));
+                loginStatusDiv.style.display = 'none'; // 기록 로딩 후 상태 메시지 숨김
+
+            } catch (error) {
+                loginStatusDiv.textContent = error.message;
+            }
+        }
+
+        // 메시지 전송 이벤트 핸들러
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            // 사용자 메시지를 화면에 즉시 표시
+            addMessageToHistory('USER', content);
+            messageInput.value = '';
+
+            try {
+                const response = await fetch('/api/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (!response.ok) {
+                    throw new Error('메시지 전송에 실패했습니다.');
+                }
+
+                const botMessage = await response.json();
+                addMessageToHistory(botMessage.sender, botMessage.content);
+
+            } catch (error) {
+                addMessageToHistory('BOT', `오류: ${error.message}`);
+            }
+        });
+
+        // 채팅창에 메시지 추가하는 함수
+        function addMessageToHistory(sender, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'USER' ? 'user-message' : 'bot-message');
+            messageDiv.textContent = content;
+            chatHistory.appendChild(messageDiv);
+            // 새 메시지가 추가되면 항상 맨 아래로 스크롤
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>

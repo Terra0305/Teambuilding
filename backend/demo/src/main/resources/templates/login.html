@@ -109,9 +109,9 @@
             <a href="#">기차여행</a>
         </div>
         <div class="right">
-            <a href="/login">로그인</a>
+            <a href="/dummy/login">로그인</a>
             <a href="#">장바구니</a>
-            <a href="#">마이페이지</a>
+            <a href="/dummy/mypage">마이페이지</a>
             <a href="#">고객센터</a>
             <a href="#">기업전용</a>
             <a href="#"> Language</a>
@@ -137,7 +137,7 @@
             </form>
             <p id="result"></p>
             <div class="signup-link">
-                <a href="/signup">회원가입하기</a>
+                <a href="/dummy/signup">회원가입하기</a>
             </div>
         </div>
     </div>
@@ -161,7 +161,7 @@
                 if (result.success) {
                     localStorage.setItem('token', result.token);
                     alert('로그인 성공! 로그인 성공 페이지로 이동합니다.');
-                    window.location.href = '/login-success';
+                    window.location.href = '/dummy/login-success';
                 } else {
                     document.getElementById('result').innerText = result.message;
                 }

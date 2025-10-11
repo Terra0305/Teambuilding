@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>손에딱 로그인</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* 로고/타이틀 */
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 40px;
+      margin-bottom: 30px;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .title img {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* 로그인 박스 */
+    .login-box {
+      background-color: #f5f5f5;
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .login-btn {
+      margin-top: 10px;
+      background-color: #0066e8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background-color: #0052b6;
+    }
+
+    /* 회원가입 영역 */
+    .signup-text {
+      margin-top: 25px;
+      font-size: 14px;
+      color: #000;
+    }
+
+    .signup-text a {
+      color: #00b227;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 4px;
+    }
+
+    .signup-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 타이틀 -->
+  <div class="title">
+    손에딱
+    <img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png" alt="손 아이콘">
+  </div>
+
+  <!-- 로그인 박스 -->
+  <div class="login-box">
+    <div class="form-group">
+      <label for="userId">아이디:</label>
+      <input type="text" id="userId" placeholder="아이디 입력">
+    </div>
+    <div class="form-group">
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" placeholder="비밀번호 입력">
+    </div>
+    <button class="login-btn">로그인</button>
+  </div>
+
+  <!-- 회원가입 안내 -->
+  <div class="signup-text">
+    계정이 없으신가요? <a href="/signup">회원가입</a>
+  </div>
+
+</body>
+</html>
