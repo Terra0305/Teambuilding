@@ -91,16 +91,37 @@ public class GeminiService {
         tools.add(toolsWrapper);
         requestBody.add("tools", tools);
         
-        // 시스템 프롬프트
+        // 강화된 시스템 프롬프트
         JsonObject systemInstruction = new JsonObject();
         JsonArray parts = new JsonArray();
         JsonObject textPart = new JsonObject();
-        textPart.addProperty("text", String.format(
-            "당신은 기차 예매 도우미입니다. 사용자 ID %d의 요청을 처리하세요. " +
-            "사용 가능한 도구: search_trains(기차 검색), book_train(예매), " +
-            "get_my_bookings(예매 내역), cancel_booking(취소). " +
-            "도구를 적극 활용하여 실제 데이터를 조회하세요.", userId
-        ));
+        textPart.addProperty("text",
+            "You are a train booking assistant. Current date: 2025-10-11\n\n" +
+            "User ID: " + userId + "\n\n" +
+            "CRITICAL INSTRUCTIONS:\n" +
+            "1. ALWAYS use tools to get real data. NEVER make assumptions or ask clarifying questions when you can use tools.\n" +
+            "2. When user mentions dates in Korean (like '10월11일'), convert to YYYY-MM-DD format (2025-10-11)\n" +
+            "3. Common Korean dates:\n" +
+            "   - '오늘', 'today' → 2025-10-11\n" +
+            "   - '10월11일', '10/11' → 2025-10-11\n" +
+            "   - '내일', 'tomorrow' → 2025-10-12\n\n" +
+            "Available destinations: 용산, 광주송정, 서울, 부산, 대전, 대구\n" +
+            "- If user says '광주', assume '광주송정'\n\n" +
+            "Available tools:\n" +
+            "1. search_trains(origin, destination, date) - Search trains. Date must be YYYY-MM-DD format\n" +
+            "2. book_train(trainId) - Book a train\n" +
+            "3. get_my_bookings() - Get user bookings\n" +
+            "4. cancel_booking(bookingId) - Cancel booking\n\n" +
+            "WORKFLOW when user asks to search/book:\n" +
+            "1. Extract: origin, destination, date from user message\n" +
+            "2. Convert date to YYYY-MM-DD\n" +
+            "3. USE search_trains tool immediately\n" +
+            "4. Present results in Korean\n\n" +
+            "Example:\n" +
+            "User: '10월11일 용산에서 광주가는 기차표 예매해줘'\n" +
+            "→ Call search_trains(origin='용산', destination='광주송정', date='2025-10-11')\n" +
+            "→ Present results and ask which train to book"
+        );
         parts.add(textPart);
         systemInstruction.add("parts", parts);
         requestBody.add("systemInstruction", systemInstruction);
