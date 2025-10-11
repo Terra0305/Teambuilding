@@ -82,7 +82,7 @@
 </head>
 <body>
 
-  <button class="logout-btn">로그아웃</button>
+  <button class="logout-btn" id="auth-btn">로그아웃</button>
 
   <div class="title">
     <div class="title-top">
@@ -94,8 +94,46 @@
 
   <div class="button-container">
     <a href="/voice-prototype.html" class="main-btn voice-btn">음성 예매</a>
-    <a href="/chat-prototype.html" class="main-btn chat-btn">채팅 예매</a>
+    <a href="/chat-prototype.html" class="main-btn chat-btn" id="chat-reserve-btn">채팅 예매</a>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const authButton = document.getElementById('auth-btn');
+      const chatReserveButton = document.getElementById('chat-reserve-btn');
+      const token = localStorage.getItem('jwt-token');
+
+      // 1. 상단 인증 버튼 상태 관리
+      if (token) {
+        authButton.textContent = '로그아웃';
+        authButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          localStorage.removeItem('jwt-token');
+          alert('로그아웃 되었습니다.');
+          window.location.reload();
+        });
+      } else {
+        authButton.textContent = '로그인';
+        authButton.addEventListener('click', function() {
+            window.location.href = '/login';
+        });
+      }
+
+      // 2. 채팅 예매 버튼 접근 제어
+      chatReserveButton.addEventListener('click', function(e) {
+        e.preventDefault(); // 기본 링크 이동 방지
+        const currentToken = localStorage.getItem('jwt-token'); // 클릭 시점에 토큰을 다시 확인
+        if (currentToken) {
+          // 토큰 있으면 채팅 페이지로 이동
+          window.location.href = this.href;
+        } else {
+          // 토큰 없으면 알림 후 로그인 페이지로 이동
+          alert('로그인이 필요합니다.');
+          window.location.href = '/login';
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

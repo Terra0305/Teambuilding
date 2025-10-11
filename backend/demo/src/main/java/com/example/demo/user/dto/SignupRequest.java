@@ -8,5 +8,6 @@ import lombok.Setter;
 public class SignupRequest {
     private String username;
     private String password;
-    private String passwordConfirm; // name을 passwordConfirm으로 변경
+    private String passwordConfirm;
+    private String name; // 사용자 이름 필드 추가
 }

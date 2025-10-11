@@ -126,7 +126,7 @@
 </head>
 <body>
 
-  <a href="/login" class="login-btn">로그인</a>
+  <a href="/login" class="login-btn" id="auth-btn">로그인</a>
 
   <div class="title">
     손에딱
@@ -139,5 +139,28 @@
     <button class="ticket-btn">승차권 확인</button>
   </div>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const authButton = document.getElementById('auth-btn');
+      const token = localStorage.getItem('jwt-token');
+
+      if (token) {
+        // 토큰이 있으면 로그아웃 버튼으로 변경
+        authButton.textContent = '로그아웃';
+        authButton.href = '#'; // 기본 링크 동작 방지
+        authButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          // 토큰 삭제
+          localStorage.removeItem('jwt-token');
+          alert('로그아웃 되었습니다.');
+          // 페이지 새로고침
+          window.location.reload();
+        });
+      } else {
+        // 토큰이 없으면 기존 로그인 버튼 동작 유지
+        authButton.href = '/login';
+      }
+    });
+  </script>
 </body>
 </html>

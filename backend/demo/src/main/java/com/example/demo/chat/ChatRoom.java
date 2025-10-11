@@ -29,6 +29,19 @@ public class ChatRoom {
 
     private LocalDateTime createdAt;
 
+    // 대화 상태 저장을 위한 필드 추가
+    @Column(name = "conversation_state")
+    private String conversationState = "IDLE"; // 대화 상태 (IDLE, ASKING_DESTINATION, ASKING_DATE 등)
+
+    @Column(name = "temp_origin")
+    private String tempOrigin; // 임시 저장 출발지
+
+    @Column(name = "temp_destination")
+    private String tempDestination; // 임시 저장 도착지
+
+    @Column(name = "temp_date")
+    private String tempDate; // 임시 저장 날짜
+
     public ChatRoom(User user) {
         this.user = user;
         this.createdAt = LocalDateTime.now();

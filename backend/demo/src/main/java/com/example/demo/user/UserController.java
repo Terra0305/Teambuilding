@@ -47,7 +47,7 @@ public class UserController {
         
         // 기존: 회원가입 처리 (name 대신 username 사용)
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        User newUser = new User(request.getUsername(), encodedPassword, request.getUsername());
+        User newUser = new User(request.getUsername(), encodedPassword, request.getName());
         userRepository.save(newUser);
         
         response.put("success", true);
