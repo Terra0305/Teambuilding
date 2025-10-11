@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables (민감한 정보!) ###
+.env
+.env.local
+.env.production
