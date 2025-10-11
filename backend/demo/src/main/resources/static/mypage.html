@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - 예매 내역</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f7f6;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003b4f;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        .top-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #003b4f;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .booking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .booking-item {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .booking-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .booking-id {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .booking-status {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .booking-details div span {
+            font-weight: bold;
+            color: #003b4f;
+        }
+
+        .no-bookings {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .cancel-btn {
+            padding: 8px 15px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .cancel-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div>
+            <a href="/">손에딱 홈</a>
+            <a href="/train-reserve">기차예매</a>
+        </div>
+        <div>
+            <a href="/mypage">마이페이지</a>
+            <a href="#" id="logout-link">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <h1>나의 예매 내역</h1>
+
+        <div id="loading" class="no-bookings">예매 내역을 불러오는 중...</div>
+        <div id="no-bookings" class="no-bookings hidden">예매 내역이 없습니다.</div>
+        <div id="booking-list" class="booking-list"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('jwt-token');
+            const logoutLink = document.getElementById('logout-link');
+
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('jwt-token');
+                alert('로그아웃되었습니다.');
+                window.location.href = '/';
+            });
+
+            fetchBookings();
+        });
+
+        async function fetchBookings() {
+            const token = localStorage.getItem('jwt-token');
+            const bookingListDiv = document.getElementById('booking-list');
+            const loadingDiv = document.getElementById('loading');
+            const noBookingsDiv = document.getElementById('no-bookings');
+
+            loadingDiv.classList.remove('hidden');
+            bookingListDiv.innerHTML = '';
+            noBookingsDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/my-bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const bookings = await response.json();
+                    loadingDiv.classList.add('hidden');
+                    if (bookings.length === 0) {
+                        noBookingsDiv.classList.remove('hidden');
+                    } else {
+                        displayBookings(bookings);
+                    }
+                } else if (response.status === 401) {
+                    alert('인증이 필요합니다. 다시 로그인해주세요.');
+                    localStorage.removeItem('jwt-token');
+                    window.location.href = '/login';
+                } else {
+                    alert('예매 내역을 불러오는데 실패했습니다.');
+                    console.error('Failed to fetch bookings:', response.status, await response.text());
+                }
+            } catch (error) {
+                loadingDiv.classList.add('hidden');
+                alert('예매 내역을 불러오는 중 오류가 발생했습니다.');
+                console.error('Error fetching bookings:', error);
+            }
+        }
+
+        function displayBookings(bookings) {
+            const bookingListDiv = document.getElementById('booking-list');
+            bookingListDiv.innerHTML = bookings.map(booking => `
+                <div class="booking-item">
+                    <div class="booking-header">
+                        <div class="booking-id">예매 번호: ${booking.bookingId}</div>
+                        <div class="booking-status" style="color: ${booking.status === 'CANCELED' ? '#f44336' : '#28a745'};">${booking.status === 'CANCELED' ? '예매 취소됨' : '예매 완료'}</div>
+                    </div>
+                    <div class="booking-details">
+                        <div><span>출발:</span> ${booking.origin}</div>
+                        <div><span>도착:</span> ${booking.destination}</div>
+                        <div><span>출발 시간:</span> ${formatDateTime(booking.departureTime)}</div>
+                        <div><span>도착 시간:</span> ${formatDateTime(booking.arrivalTime)}</div>
+                        <div><span>열차 번호:</span> ${booking.trainNumber}</div>
+                        <div><span>가격:</span> ${booking.price.toLocaleString()}원</div>
+                    </div>
+                    <button class="cancel-btn" onclick="cancelBooking(${booking.bookingId})" ${booking.status === 'CANCELED' ? 'disabled' : ''}>${booking.status === 'CANCELED' ? '취소됨' : '예매 취소'}</button>
+                </div>
+            `).join('');
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function cancelBooking(bookingId) {
+            if (confirm('정말로 예매를 취소하시겠습니까?')) {
+                const token = localStorage.getItem('jwt-token');
+                if (!token) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/bookings/${bookingId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('예매가 성공적으로 취소되었습니다.');
+                        fetchBookings();
+                    } else if (response.status === 401) {
+                        alert('인증이 필요합니다. 다시 로그인해주세요.');
+                        localStorage.removeItem('jwt-token');
+                        window.location.href = '/login';
+                    } else if (response.status === 403) {
+                        alert('예매 취소 권한이 없습니다.');
+                    } else if (response.status === 404) {
+                        alert('존재하지 않는 예매입니다.');
+                    } else {
+                        const errorText = await response.text();
+                        alert('예매 취소 중 오류가 발생했습니다: ' + errorText);
+                    }
+                } catch (error) {
+                    alert('예매 취소 중 네트워크 오류가 발생했습니다.');
+                    console.error('예매 취소 네트워크 오류:', error);
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

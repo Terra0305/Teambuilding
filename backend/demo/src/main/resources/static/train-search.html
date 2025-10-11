@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기차 검색</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003b4f;
+            color: white;
+            padding: 10px 20px;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        .top-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #003b4f;
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #003b4f;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            padding: 10px 30px;
+            background-color: #007aad;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .search-btn:hover {
+            background-color: #005f8a;
+        }
+
+        .train-list {
+            margin-top: 20px;
+        }
+
+        .train-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .train-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .train-info {
+            flex: 1;
+        }
+
+        .train-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #003b4f;
+            margin-bottom: 5px;
+        }
+
+        .train-route {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .train-time {
+            color: #007aad;
+            font-weight: bold;
+        }
+
+        .train-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-right: 20px;
+        }
+
+        .book-btn {
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .book-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .book-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .loading,
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .error {
+            background-color: #ffeaea;
+            color: #e74c3c;
+        }
+
+        .success {
+            background-color: #eafaf1;
+            color: #27ae60;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div>
+            <a href="/">손에딱 홈</a>
+            <a href="/train-reserve">기차예매</a>
+        </div>
+        <div>
+            <a href="/mypage">마이페이지</a>
+            <a href="#" id="logout-link">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>기차 검색</h1>
+
+        <form class="search-form" id="search-form">
+            <div class="form-group">
+                <label for="origin">출발지</label>
+                <select id="origin" required>
+                    <option value="서울">서울</option>
+                    <option value="용산">용산</option>
+                    <option value="광주송정">광주송정</option>
+                    <option value="부산">부산</option>
+                    <option value="대전">대전</option>
+                    <option value="대구">대구</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="destination">도착지</label>
+                <select id="destination" required>
+                    <option value="광주송정">광주송정</option>
+                    <option value="서울">서울</option>
+                    <option value="용산">용산</option>
+                    <option value="부산">부산</option>
+                    <option value="대전">대전</option>
+                    <option value="대구">대구</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">출발일</label>
+                <input type="date" id="date" required>
+            </div>
+            <button type="submit" class="search-btn">검색</button>
+        </form>
+
+        <div id="message" class="message hidden"></div>
+
+        <div class="train-list">
+            <div id="loading" class="loading hidden">기차 정보를 불러오는 중...</div>
+            <div id="no-results" class="no-results hidden">검색 결과가 없습니다.</div>
+            <div id="train-results"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('jwt-token');
+            const logoutLink = document.getElementById('logout-link');
+            const dateInput = document.getElementById('date');
+
+            // 오늘 날짜 기본값 설정
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+            dateInput.min = today;
+
+            if (token) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('jwt-token');
+                    alert('로그아웃되었습니다.');
+                    window.location.href = '/';
+                });
+                fetchUserInfo(token);
+            } else {
+                logoutLink.textContent = '로그인';
+                logoutLink.href = '/login';
+            }
+
+            document.getElementById('search-form').addEventListener('submit', handleSearch);
+        });
+
+        async function fetchUserInfo(token) {
+            try {
+                const response = await fetch('/api/my-roles', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    currentUserId = userInfo.userId;
+                }
+            } catch (error) {
+                console.error('사용자 정보 가져오기 오류:', error);
+            }
+        }
+
+        async function handleSearch(event) {
+            event.preventDefault();
+
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const date = document.getElementById('date').value;
+
+            if (origin === destination) {
+                showMessage('출발지와 도착지가 같을 수 없습니다.', 'error');
+                return;
+            }
+
+            showLoading();
+            hideMessage();
+
+            try {
+                const response = await fetch(`/api/trains?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&date=${date}`);
+
+                if (response.ok) {
+                    const trains = await response.json();
+                    displayTrains(trains);
+                } else {
+                    showMessage('검색 중 오류가 발생했습니다.', 'error');
+                    hideLoading();
+                }
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showMessage('검색 중 오류가 발생했습니다.', 'error');
+                hideLoading();
+            }
+        }
+
+        function displayTrains(trains) {
+            hideLoading();
+
+            const resultsContainer = document.getElementById('train-results');
+            const noResults = document.getElementById('no-results');
+
+            if (trains.length === 0) {
+                resultsContainer.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+
+            resultsContainer.innerHTML = trains.map(train => `
+                <div class="train-item">
+                    <div class="train-info">
+                        <div class="train-number">${train.trainNumber}</div>
+                        <div class="train-route">${train.origin} → ${train.destination}</div>
+                        <div class="train-time">
+                            ${formatDateTime(train.departureTime)} → ${formatDateTime(train.arrivalTime)}
+                        </div>
+                    </div>
+                    <div class="train-price">
+                        ${train.price.toLocaleString()}원
+                    </div>
+                    <button class="book-btn" onclick="bookTrain(${train.id})" ${!currentUserId ? 'disabled' : ''}>
+                        ${currentUserId ? '예매하기' : '로그인 필요'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function bookTrain(trainId) {
+            if (!currentUserId) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            const token = localStorage.getItem('jwt-token');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        trainId: trainId
+                    })
+                });
+
+                if (response.ok) {
+                    showMessage('예매가 완료되었습니다!', 'success');
+                    setTimeout(() => {
+                        if (confirm('예매 내역을 확인하시겠습니까?')) {
+                            window.location.href = '/mypage';
+                        }
+                    }, 1000);
+                } else {
+                    const error = await response.text();
+                    showMessage('예매 중 오류가 발생했습니다: ' + error, 'error');
+                }
+            } catch (error) {
+                console.error('예매 오류:', error);
+                showMessage('예매 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('no-results').classList.add('hidden');
+            document.getElementById('train-results').innerHTML = '';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => hideMessage(), 5000);
+        }
+
+        function hideMessage() {
+            document.getElementById('message').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

@@ -33,15 +33,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // ⭐ 인증이 필요하지 않은 경로는 건너뛰기
             String requestURI = request.getRequestURI();
+            System.out.println("JWT Filter - URI: " + requestURI);
+            
             if (isPublicPath(requestURI)) {
+                System.out.println("  -> Public path, 인증 건너뛰기");
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String token = parseToken(request);
+            System.out.println("  -> Token: " + (token != null ? "exists" : "null"));
 
             if (token != null && jwtUtil.validateToken(token)) {
                 String username = jwtUtil.getUsernameFromToken(token);
+                System.out.println("  -> Username: " + username);
+                
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     if (userDetails != null) {
@@ -49,8 +55,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                        System.out.println("  -> 인증 성공!");
                     }
                 }
+            } else {
+                System.out.println("  -> Token 검증 실패 또는 null");
             }
 
         } catch (Exception e) {

@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,9 @@ public class GeminiService {
     private final MCPService mcpService;
     private final Gson gson = new Gson();
     
+    // 세션별 대화 히스토리 저장 (userId를 키로 사용)
+    private final Map<Long, List<Map<String, Object>>> sessionHistories = new ConcurrentHashMap<>();
+    
     private final WebClient webClient = WebClient.builder()
         .baseUrl("https://generativelanguage.googleapis.com/v1beta")
         .build();
@@ -35,7 +39,11 @@ public class GeminiService {
             System.out.println("사용자: " + userMessage);
             System.out.println("User ID: " + userId);
             
-            List<Map<String, Object>> conversationHistory = new ArrayList<>();
+            // 세션 히스토리 가져오기 (없으면 새로 생성)
+            List<Map<String, Object>> conversationHistory = 
+                sessionHistories.computeIfAbsent(userId, k -> new ArrayList<>());
+            
+            // 새 사용자 메시지 추가
             conversationHistory.add(Map.of(
                 "role", "user",
                 "parts", List.of(Map.of("text", userMessage))
@@ -52,6 +60,12 @@ public class GeminiService {
             e.printStackTrace();
             return "오류: " + e.getMessage();
         }
+    }
+    
+    // 대화 히스토리 초기화 (새 대화 시작)
+    public void clearHistory(Long userId) {
+        sessionHistories.remove(userId);
+        System.out.println("User " + userId + "의 대화 히스토리 초기화");
     }
     
     private JsonObject callGeminiWithTools(List<Map<String, Object>> history, Long userId) {

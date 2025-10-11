@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음성인식 기차 예매</title>
+    <style>
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #003b4f;
+        }
+        .instructions {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #startButton { 
+            font-size: 1.2em; 
+            padding: 15px 30px; 
+            background-color: #00b4ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: bold;
+        }
+        #startButton:hover {
+            background-color: #0095d9;
+        }
+        #startButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #status { 
+            margin-top: 15px; 
+            font-weight: bold; 
+            text-align: center;
+            color: #0058d4;
+        }
+        #transcript { 
+            margin-top: 10px; 
+            padding: 15px; 
+            border: 2px solid #ddd; 
+            min-height: 60px;
+            background-color: white;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        #results { 
+            margin-top: 20px; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #003b4f; 
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #666;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-btn:hover {
+            background-color: #555;
+        }
+        .error {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/train-reserve" class="back-btn">← 돌아가기</a>
+
+    <h1>음성인식 기차 예매</h1>
+    
+    <div class="instructions">
+        <p><strong>사용 방법:</strong></p>
+        <p>🎤 "서울에서 부산 가는 기차 찾아줘" 또는 "8월 10일 광주송정부터 용산까지 가는 기차" 형식으로 말씀해보세요.</p>
+    </div>
+
+    <button id="startButton">🎤 음성인식 시작</button>
+    <div id="status">버튼을 누르고 말씀하세요.</div>
+    
+    <h3>인식된 텍스트:</h3>
+    <div id="transcript">...</div>
+
+    <hr style="margin: 30px 0;">
+
+    <h3>조회 결과:</h3>
+    <div id="results">조회된 기차 정보가 여기에 표시됩니다.</div>
+
+    <script>
+        const startButton = document.getElementById('startButton');
+        const statusDiv = document.getElementById('status');
+        const transcriptDiv = document.getElementById('transcript');
+        const resultsDiv = document.getElementById('results');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            statusDiv.innerHTML = '<span class="error">죄송하지만, 이 브라우저는 음성 인식을 지원하지 않습니다.</span>';
+            startButton.disabled = true;
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            startButton.addEventListener('click', () => {
+                recognition.start();
+            });
+
+            recognition.onstart = () => {
+                statusDiv.innerHTML = '🎤 음성 인식 중... 말씀해주세요!';
+                statusDiv.style.color = '#d32f2f';
+                startButton.disabled = true;
+            };
+
+            recognition.onend = () => {
+                statusDiv.innerHTML = '음성 인식이 종료되었습니다. 다시 시도하려면 버튼을 누르세요.';
+                statusDiv.style.color = '#0058d4';
+                startButton.disabled = false;
+            };
+
+            recognition.onerror = (event) => {
+                statusDiv.innerHTML = '<span class="error">음성 인식 오류: ' + event.error + '</span>';
+                startButton.disabled = false;
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                transcriptDiv.textContent = transcript;
+                parseCommand(transcript);
+            };
+        }
+
+        function parseCommand(command) {
+            // "A에서 B까지", "A부터 B까지", "A 가는 B" 등과 날짜 포함 패턴 지원
+            // 예: "8월 10일 용산에서 광주송정 가는 기차"
+            const pattern = /(?:(\d+)\s*월\s*(\d+)\s*일)?.*?\s*(\S+)\s*(?:에서|부터)\s*(\S+)\s*(?:까지|가는|행)/;
+            
+            const match = command.match(pattern);
+
+            if (match) {
+                const month = match[1];
+                const day = match[2];
+                const origin = match[3].replace(/역$/, ''); // '역' 글자 제거
+                const destination = match[4].replace(/역$/, ''); // '역' 글자 제거
+
+                let searchDate;
+                if (month && day) {
+                    // 음성으로 날짜를 말한 경우 (올해 년도 사용)
+                    const year = new Date().getFullYear();
+                    searchDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                } else {
+                    // 날짜를 말하지 않은 경우 (오늘 날짜 사용)
+                    searchDate = new Date().toISOString().split('T')[0];
+                }
+                
+                statusDiv.innerHTML = `'${searchDate}' 날짜에 '${origin}'에서 '${destination}'(으)로 가는 기차를 검색합니다.`;
+                searchTrains(origin, destination, searchDate);
+            } else {
+                statusDiv.innerHTML = '<span class="error">명령을 이해하지 못했습니다. "[날짜] 출발지에서 도착지 가는" 형식으로 말씀해주세요.</span>';
+            }
+        }
+
+        function searchTrains(origin, destination, date) {
+            const url = `/api/trains?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&date=${date}`;
+            
+            resultsDiv.innerHTML = '<p style="text-align: center;">🔍 검색 중...</p>';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(trains => {
+                    displayTrains(trains);
+                })
+                .catch(error => {
+                    console.error('Error fetching trains:', error);
+                    resultsDiv.innerHTML = `<p class="error">기차 정보 조회 중 오류가 발생했습니다: ${error.message}</p>`;
+                });
+        }
+
+        function displayTrains(trains) {
+            if (!trains || trains.length === 0) {
+                resultsDiv.innerHTML = '<p>해당 조건의 기차를 찾을 수 없습니다.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>기차 번호</th>
+                        <th>출발지</th>
+                        <th>도착지</th>
+                        <th>출발 시간</th>
+                        <th>도착 시간</th>
+                        <th>가격</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${trains.map(train => `
+                        <tr>
+                            <td>${train.trainNumber}</td>
+                            <td>${train.origin}</td>
+                            <td>${train.destination}</td>
+                            <td>${formatDateTime(train.departureTime)}</td>
+                            <td>${formatDateTime(train.arrivalTime)}</td>
+                            <td>${train.price.toLocaleString()}원</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+            resultsDiv.innerHTML = '';
+            resultsDiv.appendChild(table);
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('ko-KR', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+
+</body>
+</html>

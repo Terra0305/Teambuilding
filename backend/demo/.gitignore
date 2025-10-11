@@ -40,3 +40,7 @@ out/
 .env
 .env.local
 .env.production
+
+### Application Properties (PostgreSQL 비밀번호 등) ###
+application-local.properties
+application-prod.properties
