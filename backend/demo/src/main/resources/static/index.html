@@ -122,7 +122,7 @@
   </div>
 
   <div class="button-container">
-    <a href="/train-reserve" class="main-btn train-btn">기차예매</a>
+    <a href="#" class="main-btn train-btn" id="train-reserve-btn">기차예매</a>
     <a href="/train-search" class="main-btn search-btn">기차 검색</a>
     <button class="main-btn bus-btn" onclick="alert('버스예매 기능은 준비 중입니다!')">버스예매</button>
     <a href="/mypage" class="main-btn ticket-btn">예매 내역 확인</a>
@@ -131,6 +131,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const authButton = document.getElementById('auth-btn');
+      const trainReserveBtn = document.getElementById('train-reserve-btn');
       const token = localStorage.getItem('jwt-token');
 
       if (token) {
@@ -145,6 +146,20 @@
       } else {
         authButton.href = '/login';
       }
+
+      // 기차예매 버튼 클릭 시
+      trainReserveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('jwt-token');
+        if (currentToken) {
+          // 로그인 되어있으면 바로 채팅창으로
+          window.location.href = '/chatbot.html';
+        } else {
+          // 로그인 안되어있으면 로그인 페이지로
+          alert('로그인이 필요합니다.');
+          window.location.href = '/login';
+        }
+      });
     });
   </script>
 </body>

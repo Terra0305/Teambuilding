@@ -72,8 +72,10 @@
       text-decoration: none;
       text-align: center;
     }
-    .voice-btn { background-color: #00b4ff; }
-    .chat-btn { background-color: #0058d4; }
+    .chat-btn { 
+      background-color: #0058d4; 
+      min-width: 250px;
+    }
     .main-btn:hover { opacity: 0.9; }
   </style>
 </head>
@@ -90,8 +92,7 @@
   </div>
 
   <div class="button-container">
-    <a href="/voice-reserve.html" class="main-btn voice-btn">음성 예매</a>
-    <a href="/chatbot.html" class="main-btn chat-btn" id="chat-reserve-btn">채팅 예매</a>
+    <a href="/chatbot.html" class="main-btn chat-btn" id="chat-reserve-btn">🎤 음성/채팅 예매</a>
   </div>
 
   <script>

@@ -16,9 +16,12 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping("/api/bookings")
-    public ResponseEntity<String> createBooking(@RequestBody BookingRequestDto requestDto) {
-        bookingService.bookTrain(requestDto.getUserId(), requestDto.getTrainId());
-        return ResponseEntity.ok("예매가 완료되었습니다.");
+    public ResponseEntity<BookingResponseDto> createBooking(
+            @RequestBody BookingRequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUser().getId();
+        BookingResponseDto booking = bookingService.bookTrain(userId, requestDto.getTrainId());
+        return ResponseEntity.ok(booking);
     }
 
     @GetMapping("/api/my-bookings")

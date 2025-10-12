@@ -50,21 +50,31 @@ public class DummyDataInitializer implements CommandLineRunner {
             
             List<Train> trains = new ArrayList<>();
             
-            // 2025년 1월 1일부터 오늘까지 하루에 1개씩 생성
+            // 2025년 1월 1일부터 오늘까지 하루에 양방향 2개씩 생성
             for (LocalDate date = startDate; !date.isAfter(today); date = date.plusDays(1)) {
-                // 오전 9시 출발 기차 1개 생성
-                LocalDateTime departureTime = date.atTime(9, 0);
-                LocalDateTime arrivalTime = departureTime.plusHours(2).plusMinutes(30);
+                // 1) 용산 -> 광주송정 (오전 9시)
+                LocalDateTime departureTime1 = date.atTime(9, 0);
+                LocalDateTime arrivalTime1 = departureTime1.plusHours(2).plusMinutes(30);
                 
-                String trainNumber = String.format("KTX_%02d%02d", 
+                String trainNumber1 = String.format("KTX_%02d%02d_1", 
                     date.getMonthValue(), 
                     date.getDayOfMonth());
                 
-                int price = 50000; // 고정 가격
+                Train train1 = new Train(trainNumber1, "용산", "광주송정", 
+                    departureTime1, arrivalTime1, 50000);
+                trains.add(train1);
                 
-                Train train = new Train(trainNumber, "용산", "광주송정", 
-                    departureTime, arrivalTime, price);
-                trains.add(train);
+                // 2) 광주송정 -> 용산 (오후 2시)
+                LocalDateTime departureTime2 = date.atTime(14, 0);
+                LocalDateTime arrivalTime2 = departureTime2.plusHours(2).plusMinutes(30);
+                
+                String trainNumber2 = String.format("KTX_%02d%02d_2", 
+                    date.getMonthValue(), 
+                    date.getDayOfMonth());
+                
+                Train train2 = new Train(trainNumber2, "광주송정", "용산", 
+                    departureTime2, arrivalTime2, 50000);
+                trains.add(train2);
             }
             
             // 데이터 저장

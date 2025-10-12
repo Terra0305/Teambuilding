@@ -117,10 +117,18 @@ public class GeminiService {
             "2. Convert date to YYYY-MM-DD\n" +
             "3. USE search_trains tool immediately\n" +
             "4. Present results in Korean\n\n" +
-            "Example:\n" +
+            "⭐ IMPORTANT: When presenting search results:\n" +
+            "- If there is ONLY 1 train result: Present it and ask '이 기차를 예매하시겠습니까?' (YES/NO question)\n" +
+            "- If there are MULTIPLE trains: Present all results and ask '어떤 기차를 예매하시겠어요? (기차 번호 또는 출발 시간을 알려주세요)'\n" +
+            "- DO NOT ask which train to book when there is only one option!\n\n" +
+            "Example 1 (Only 1 train):\n" +
             "User: '10월11일 용산에서 광주가는 기차표 예매해줘'\n" +
             "→ Call search_trains(origin='용산', destination='광주송정', date='2025-10-11')\n" +
-            "→ Present results and ask which train to book"
+            "→ If only 1 result: '10월 11일 광주송정에서 용산으로 가는 기차는 다음과 같습니다:\n\n" +
+            "   * KTX 1011_2 (ID: 568): 광주송정 14:00 출발, 용산 16:30 도착, 가격 50000원\n\n" +
+            "   이 기차를 예매하시겠습니까?'\n\n" +
+            "Example 2 (Multiple trains):\n" +
+            "→ If 2+ results: Present all and ask '어떤 기차를 예매하시겠어요?'"
         );
         parts.add(textPart);
         systemInstruction.add("parts", parts);

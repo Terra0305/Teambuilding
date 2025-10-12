@@ -66,8 +66,8 @@ public class SecurityConfig {
                 // ⭐ 챗봇 API 허용 (인증 필요!)
                 .requestMatchers("/api/chatbot/**").authenticated()
 
-                // 정적 파일들 (CSS, JS, 이미지 등) 허용
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico", "/*.html").permitAll()
+                // 정적 파일들 (CSS, JS, 이미지 등) 허용 - *.js 추가!
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico", "/*.html", "/*.js", "/*.css").permitAll()
 
                 // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
                 .anyRequest().authenticated()

@@ -20,12 +20,13 @@ public class BookingService {
     private final TrainRepository trainRepository;
 
     @Transactional
-    public Booking bookTrain(Long userId, Long trainId) {
+    public BookingResponseDto bookTrain(Long userId, Long trainId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         Train train = trainRepository.findById(trainId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기차입니다."));
 
         Booking newBooking = new Booking(user, train);
-        return bookingRepository.save(newBooking);
+        Booking savedBooking = bookingRepository.save(newBooking);
+        return new BookingResponseDto(savedBooking);
     }
 
     @Transactional(readOnly = true)

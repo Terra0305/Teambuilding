@@ -71,6 +71,18 @@
             padding: 12px; 
             text-align: left; 
         }
+        .reserve-btn {
+            background-color: #00b4ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .reserve-btn:hover {
+            background-color: #0095d9;
+        }
         th { 
             background-color: #003b4f; 
             color: white;
@@ -165,17 +177,50 @@
         }
 
         function parseCommand(command) {
-            // "A에서 B까지", "A부터 B까지", "A 가는 B" 등과 날짜 포함 패턴 지원
-            // 예: "8월 10일 용산에서 광주송정 가는 기차"
-            const pattern = /(?:(\d+)\s*월\s*(\d+)\s*일)?.*?\s*(\S+)\s*(?:에서|부터)\s*(\S+)\s*(?:까지|가는|행)/;
+            console.log('원본 명령:', command);
             
-            const match = command.match(pattern);
-
-            if (match) {
-                const month = match[1];
-                const day = match[2];
-                const origin = match[3].replace(/역$/, ''); // '역' 글자 제거
-                const destination = match[4].replace(/역$/, ''); // '역' 글자 제거
+            // 역 이름 정규화 맵
+            const stationMap = {
+                '광주': '광주송정',
+                '광주역': '광주송정',
+                '용산역': '용산',
+                '서울': '용산',
+                '서울역': '용산'
+            };
+            
+            // 날짜 추출 (선택)
+            const datePattern = /(\d+)\s*월\s*(\d+)\s*일/;
+            const dateMatch = command.match(datePattern);
+            
+            // 날짜 부분 제거한 텍스트
+            let textWithoutDate = command;
+            if (dateMatch) {
+                textWithoutDate = command.replace(dateMatch[0], '').trim();
+            }
+            
+            // 출발지-도착지 패턴 (더 유연하게)
+            const routePatterns = [
+                /(\S+?)\s*(?:에서|부터|역에서)\s*(\S+?)\s*(?:까지|가는|가|행|으로|역)/,
+                /(\S+?)\s+(\S+?)\s*(?:가는|행)/
+            ];
+            
+            let origin, destination;
+            for (const pattern of routePatterns) {
+                const match = textWithoutDate.match(pattern);
+                if (match) {
+                    origin = match[1].replace(/역$/, '').trim();
+                    destination = match[2].replace(/역$/, '').trim();
+                    break;
+                }
+            }
+            
+            if (origin && destination) {
+                // 역 이름 정규화
+                origin = stationMap[origin] || origin;
+                destination = stationMap[destination] || destination;
+                
+                const month = dateMatch ? dateMatch[1] : null;
+                const day = dateMatch ? dateMatch[2] : null;
 
                 let searchDate;
                 if (month && day) {
@@ -187,9 +232,11 @@
                     searchDate = new Date().toISOString().split('T')[0];
                 }
                 
+                console.log('파싱 결과:', { origin, destination, searchDate });
                 statusDiv.innerHTML = `'${searchDate}' 날짜에 '${origin}'에서 '${destination}'(으)로 가는 기차를 검색합니다.`;
                 searchTrains(origin, destination, searchDate);
             } else {
+                console.log('파싱 실패');
                 statusDiv.innerHTML = '<span class="error">명령을 이해하지 못했습니다. "[날짜] 출발지에서 도착지 가는" 형식으로 말씀해주세요.</span>';
             }
         }
@@ -231,6 +278,7 @@
                         <th>출발 시간</th>
                         <th>도착 시간</th>
                         <th>가격</th>
+                        <th>예매</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -242,6 +290,7 @@
                             <td>${formatDateTime(train.departureTime)}</td>
                             <td>${formatDateTime(train.arrivalTime)}</td>
                             <td>${train.price.toLocaleString()}원</td>
+                            <td><button class="reserve-btn" onclick="reserveTrain(${train.id}, '${train.trainNumber}')">예매하기</button></td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -257,6 +306,57 @@
                 day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit'
+            });
+        }
+
+        function reserveTrain(trainId, trainNumber) {
+            // JWT 토큰 확인
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            if (!confirm(`${trainNumber} 기차를 예매하시겠습니까?`)) {
+                return;
+            }
+
+            // 예매 API 호출
+            fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    trainId: trainId
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error('예매 실패');
+                }
+                return response.json();
+            })
+            .then(booking => {
+                if (booking) {
+                    alert(`예매가 완료되었습니다!\n예매번호: ${booking.id}`);
+                    // 마이페이지로 이동할지 물어보기
+                    if (confirm('예매 내역을 확인하시겠습니까?')) {
+                        window.location.href = '/mypage.html';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('예매 오류:', error);
+                alert('예매 중 오류가 발생했습니다: ' + error.message);
             });
         }
     </script>
