@@ -28,3 +28,16 @@ replay_pid*
 .env.local
 .env.production
 *.env
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+### User-specific files ###
+C:/Users/jpsm0/.gradle/
+C:/Users/jpsm0/gradle/
+mcp-server/node_modules/
