@@ -43,16 +43,17 @@ public class DummyDataInitializer implements CommandLineRunner {
             if (existingTrainCount == 0) {
                 System.out.println("기차 데이터 생성 시작...");
                 
-                // 2025년 1월 1일부터 오늘까지
+                // 2025년 1월 1일부터 오늘+30일까지
                 LocalDate startDate = LocalDate.of(2025, 1, 1);
                 LocalDate today = LocalDate.now();
+                LocalDate endDate = today.plusDays(90); // 오늘부터 90일 후까지
                 
-                System.out.println("생성 기간: " + startDate + " ~ " + today);
+                System.out.println("생성 기간: " + startDate + " ~ " + endDate);
                 
                 List<Train> trains = new ArrayList<>();
                 
-                // 2025년 1월 1일부터 오늘까지 하루에 양방향 2개씩 생성
-                for (LocalDate date = startDate; !date.isAfter(today); date = date.plusDays(1)) {
+                // 2025년 1월 1일부터 오늘+30일까지 하루에 양방향 2개씩 생성
+                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                     // 1) 용산 -> 광주송정 (오전 9시)
                     LocalDateTime departureTime1 = date.atTime(9, 0);
                     LocalDateTime arrivalTime1 = departureTime1.plusHours(2).plusMinutes(30);

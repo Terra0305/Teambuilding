@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -102,16 +104,23 @@ public class GeminiService {
         JsonObject systemInstruction = new JsonObject();
         JsonArray parts = new JsonArray();
         JsonObject textPart = new JsonObject();
+        // 현재 날짜 가져오기
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String todayStr = today.format(formatter);
+        String tomorrowStr = tomorrow.format(formatter);
+        
         textPart.addProperty("text",
-            "You are a train booking assistant. Current date: 2025-10-11\n\n" +
+            "You are a train booking assistant. Current date: " + todayStr + "\n\n" +
             "User ID: " + userId + "\n\n" +
             "CRITICAL INSTRUCTIONS:\n" +
             "1. ALWAYS use tools to get real data. NEVER make assumptions or ask clarifying questions when you can use tools.\n" +
-            "2. When user mentions dates in Korean (like '10월11일'), convert to YYYY-MM-DD format (2025-10-11)\n" +
+            "2. When user mentions dates in Korean (like '10월27일'), convert to YYYY-MM-DD format (" + todayStr + ")\n" +
             "3. Common Korean dates:\n" +
-            "   - '오늘', 'today' → 2025-10-11\n" +
-            "   - '10월11일', '10/11' → 2025-10-11\n" +
-            "   - '내일', 'tomorrow' → 2025-10-12\n\n" +
+            "   - '오늘', 'today' → " + todayStr + "\n" +
+            "   - '10월27일', '10/27' → " + todayStr + "\n" +
+            "   - '내일', 'tomorrow' → " + tomorrowStr + "\n\n" +
             "Available destinations: 용산, 광주송정, 서울, 부산, 대전, 대구\n" +
             "- If user says '광주', assume '광주송정'\n\n" +
             "Available tools:\n" +
