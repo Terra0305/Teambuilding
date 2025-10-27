@@ -30,30 +30,31 @@ public class ChatbotController {
         com.google.gson.Gson gson = new com.google.gson.Gson();
         List<Map<String, String>> historyDto = history.stream()
                 .map(msg -> {
-                    String readableContent = "";
-                    if ("user".equals(msg.getRole()) || "model".equals(msg.getRole())) {
+                    // 'user' 역할의 메시지는 항상 포함
+                    if ("user".equals(msg.getRole())) {
                         try {
                             com.google.gson.JsonObject contentJson = gson.fromJson(msg.getContent(), com.google.gson.JsonObject.class);
-                            com.google.gson.JsonArray parts = contentJson.getAsJsonArray("parts");
-                            if (parts != null && !parts.isEmpty()) {
-                                com.google.gson.JsonObject firstPart = parts.get(0).getAsJsonObject();
-                                if (firstPart.has("text")) {
-                                    readableContent = firstPart.get("text").getAsString();
-                                } else if (firstPart.has("functionCall")) {
-                                    com.google.gson.JsonObject functionCall = firstPart.getAsJsonObject("functionCall");
-                                    String functionName = functionCall.get("name").getAsString();
-                                    readableContent = "[Function Call: " + functionName + "]";
-                                }
+                            String text = contentJson.getAsJsonArray("parts").get(0).getAsJsonObject().get("text").getAsString();
+                            return Map.of("role", "user", "content", text);
+                        } catch (Exception e) {
+                            return Map.of("role", "user", "content", msg.getContent()); // 파싱 실패 시 원본
+                        }
+                    }
+                    // 'model' 역할의 메시지는 'text'를 포함할 때만 포함 (functionCall 제외)
+                    if ("model".equals(msg.getRole())) {
+                        try {
+                            com.google.gson.JsonObject contentJson = gson.fromJson(msg.getContent(), com.google.gson.JsonObject.class);
+                            com.google.gson.JsonObject firstPart = contentJson.getAsJsonArray("parts").get(0).getAsJsonObject();
+                            if (firstPart.has("text")) {
+                                String text = firstPart.get("text").getAsString();
+                                return Map.of("role", "model", "content", text);
                             }
                         } catch (Exception e) {
-                            // JSON 파싱에 실패하면 원본 내용을 그대로 사용
-                            readableContent = msg.getContent();
+                            // 파싱 실패 또는 부적절한 형식의 메시지는 무시
                         }
-                    } else {
-                        // 'user' 또는 'model' 역할이 아닌 메시지는 기록에 표시하지 않음
-                        return null;
                     }
-                    return Map.of("role", msg.getRole(), "content", readableContent);
+                    // 그 외(function 등)는 표시하지 않음
+                    return null;
                 })
                 .filter(java.util.Objects::nonNull)
                 .collect(Collectors.toList());
