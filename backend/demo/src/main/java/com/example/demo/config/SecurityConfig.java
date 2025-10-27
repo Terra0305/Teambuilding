@@ -37,7 +37,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // CSRF, Form Login, HTTP Basic 비활성화
         http
-            .csrf(AbstractHttpConfigurer::disable)
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/h2-console/**"))
+            .headers(headers -> headers.frameOptions().sameOrigin()) // H2 콘솔용
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -63,8 +64,8 @@ public class SecurityConfig {
                 // ⭐ 기차 검색 API도 허용 (이게 핵심!)
                 .requestMatchers("/api/trains", "/api/trains/**").permitAll()
 
-                // ⭐ 챗봇 API 허용 (인증 필요!)
-                .requestMatchers("/api/chatbot/**").authenticated()
+                // ⭐ 챗봇 API 허용 (임시로 permitAll)
+                .requestMatchers("/api/chatbot/**").permitAll()
 
                 // 정적 파일들 (CSS, JS, 이미지 등) 허용 - *.js 추가!
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico", "/*.html", "/*.js", "/*.css").permitAll()
