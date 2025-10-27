@@ -2,6 +2,8 @@ package com.example.demo.chatbot;
 
 import com.example.demo.chatbot.mcp.MCPService;
 import com.example.demo.chatbot.mcp.MCPTool;
+import com.example.demo.user.User;
+import com.example.demo.user.UserRepository;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -9,49 +11,54 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GeminiService {
-    
+
     @Value("${gemini.api.key}")
     private String apiKey;
-    
+
     private final MCPService mcpService;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
     private final Gson gson = new Gson();
-    
-    // 세션별 대화 히스토리 저장 (userId를 키로 사용)
-    private final Map<Long, List<Map<String, Object>>> sessionHistories = new ConcurrentHashMap<>();
-    
+
     private final WebClient webClient = WebClient.builder()
-        .baseUrl("https://generativelanguage.googleapis.com/v1beta")
-        .build();
-    
+            .baseUrl("https://generativelanguage.googleapis.com/v1beta")
+            .build();
+
+    @Transactional
     public String chat(String userMessage, Long userId) {
         try {
-            System.out.println("=== 챗봇 요청 시작 ===");
-            System.out.println("사용자: " + userMessage);
-            System.out.println("User ID: " + userId);
-            
-            // 세션 히스토리 가져오기 (없으면 새로 생성)
-            List<Map<String, Object>> conversationHistory = 
-                sessionHistories.computeIfAbsent(userId, k -> new ArrayList<>());
-            
-            // 새 사용자 메시지 추가
-            conversationHistory.add(Map.of(
-                "role", "user",
-                "parts", List.of(Map.of("text", userMessage))
-            ));
-            
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            // DB에서 대화 내역 로드
+            List<ChatMessage> dbHistory = chatMessageRepository.findByUserIdOrderByCreatedAtAsc(userId);
+            List<Map<String, Object>> conversationHistory = dbHistory.stream()
+                    .map(msg -> gson.<Map<String, Object>>fromJson(msg.getContent(), Map.class))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            // 새 사용자 메시지 추가 및 DB 저장
+            Map<String, Object> userMessageMap = Map.of(
+                    "role", "user",
+                    "parts", List.of(Map.of("text", userMessage))
+            );
+            conversationHistory.add(userMessageMap);
+            chatMessageRepository.save(new ChatMessage(user, "user", gson.toJson(userMessageMap)));
+
             JsonObject response = callGeminiWithTools(conversationHistory, userId);
-            return processGeminiResponse(response, conversationHistory, userId);
-            
+            return processGeminiResponse(response, conversationHistory, user, userId);
+
         } catch (WebClientResponseException e) {
             System.err.println("API 오류: " + e.getStatusCode());
             System.err.println("응답: " + e.getResponseBodyAsString());
@@ -61,24 +68,25 @@ public class GeminiService {
             return "오류: " + e.getMessage();
         }
     }
-    
-    // 대화 히스토리 초기화 (새 대화 시작)
+
+    @Transactional
     public void clearHistory(Long userId) {
-        sessionHistories.remove(userId);
+        chatMessageRepository.deleteByUserId(userId);
         System.out.println("User " + userId + "의 대화 히스토리 초기화");
     }
-    
+
+    public List<ChatMessage> getChatHistory(Long userId) {
+        return chatMessageRepository.findByUserIdOrderByCreatedAtAsc(userId);
+    }
+
     private JsonObject callGeminiWithTools(List<Map<String, Object>> history, Long userId) {
         JsonObject requestBody = new JsonObject();
-        
-        // 대화 내용
         requestBody.add("contents", gson.toJsonTree(history));
-        
-        // MCP Tools 추가
+
         JsonArray tools = new JsonArray();
         JsonObject toolsWrapper = new JsonObject();
         JsonArray functionDeclarations = new JsonArray();
-        
+
         for (MCPTool tool : mcpService.getAvailableTools()) {
             JsonObject func = new JsonObject();
             func.addProperty("name", tool.getName());
@@ -86,12 +94,11 @@ public class GeminiService {
             func.add("parameters", gson.toJsonTree(tool.getParameters()));
             functionDeclarations.add(func);
         }
-        
+
         toolsWrapper.add("functionDeclarations", functionDeclarations);
         tools.add(toolsWrapper);
         requestBody.add("tools", tools);
-        
-        // 강화된 시스템 프롬프트
+
         JsonObject systemInstruction = new JsonObject();
         JsonArray parts = new JsonArray();
         JsonObject textPart = new JsonObject();
@@ -133,96 +140,77 @@ public class GeminiService {
         parts.add(textPart);
         systemInstruction.add("parts", parts);
         requestBody.add("systemInstruction", systemInstruction);
-        
-        System.out.println("도구 개수: " + functionDeclarations.size());
-        
+
         String url = String.format("/models/gemini-2.5-flash:generateContent?key=%s", apiKey);
-        
+
         String responseStr = webClient.post()
-            .uri(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(gson.toJson(requestBody))
-            .retrieve()
-            .bodyToMono(String.class)
-            .block();
-        
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(gson.toJson(requestBody))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
         return gson.fromJson(responseStr, JsonObject.class);
     }
-    
-    private String processGeminiResponse(JsonObject response, 
-                                        List<Map<String, Object>> history, 
-                                        Long userId) {
+
+    @Transactional
+    private String processGeminiResponse(JsonObject response, List<Map<String, Object>> history, User user, Long userId) {
         if (!response.has("candidates") || response.getAsJsonArray("candidates").isEmpty()) {
             return "응답 없음";
         }
-        
+
         JsonObject candidate = response.getAsJsonArray("candidates").get(0).getAsJsonObject();
         JsonObject content = candidate.getAsJsonObject("content");
+
+        // 모델 응답 저장
+        chatMessageRepository.save(new ChatMessage(user, "model", gson.toJson(content)));
+
         JsonArray parts = content.getAsJsonArray("parts");
-        
         if (parts.isEmpty()) return "응답 비어있음";
-        
+
         JsonObject firstPart = parts.get(0).getAsJsonObject();
-        
-        // Function Call 체크
+
         if (firstPart.has("functionCall")) {
-            System.out.println("=== Function Call 감지 ===");
-            return handleFunctionCall(firstPart, history, userId);
+            return handleFunctionCall(firstPart, history, user, userId);
         }
-        
-        // 일반 텍스트
+
         if (firstPart.has("text")) {
             return firstPart.get("text").getAsString();
         }
-        
+
         return "응답 파싱 실패";
     }
-    
-    private String handleFunctionCall(JsonObject functionCallPart, 
-                                     List<Map<String, Object>> history,
-                                     Long userId) {
+
+    @Transactional
+    private String handleFunctionCall(JsonObject functionCallPart, List<Map<String, Object>> history, User user, Long userId) {
         JsonObject functionCall = functionCallPart.getAsJsonObject("functionCall");
         String functionName = functionCall.get("name").getAsString();
-        JsonObject args = functionCall.has("args") ? 
-            functionCall.getAsJsonObject("args") : new JsonObject();
-        
-        System.out.println("함수: " + functionName);
-        System.out.println("인자: " + args);
-        
+        JsonObject args = functionCall.has("args") ? functionCall.getAsJsonObject("args") : new JsonObject();
+
         @SuppressWarnings("unchecked")
         Map<String, Object> argsMap = gson.fromJson(args, Map.class);
-        
-        // userId 자동 주입
-        if (functionName.equals("book_train") || 
-            functionName.equals("get_my_bookings") || 
-            functionName.equals("cancel_booking")) {
+
+        if (functionName.equals("book_train") || functionName.equals("get_my_bookings") || functionName.equals("cancel_booking")) {
             argsMap.put("userId", userId.doubleValue());
         }
-        
+
         String toolResult = mcpService.executeTool(functionName, argsMap);
-        System.out.println("결과: " + toolResult);
-        
-        // Function Response 추가
-        history.add(Map.of(
-            "role", "model",
-            "parts", List.of(Map.of("functionCall", Map.of(
-                "name", functionName,
-                "args", argsMap
-            )))
-        ));
-        
-        history.add(Map.of(
-            "role", "function",
-            "parts", List.of(Map.of(
-                "functionResponse", Map.of(
-                    "name", functionName,
-                    "response", Map.of("content", toolResult)
-                )
-            ))
-        ));
-        
-        // 최종 응답 받기
+
+        // Function Response를 history에 추가하고 DB에 저장
+        Map<String, Object> functionResponseMap = Map.of(
+                "role", "function",
+                "parts", List.of(Map.of(
+                        "functionResponse", Map.of(
+                                "name", functionName,
+                                "response", Map.of("content", toolResult)
+                        )
+                ))
+        );
+        history.add(functionResponseMap);
+        chatMessageRepository.save(new ChatMessage(user, "function", gson.toJson(functionResponseMap)));
+
         JsonObject finalResponse = callGeminiWithTools(history, userId);
-        return processGeminiResponse(finalResponse, history, userId);
+        return processGeminiResponse(finalResponse, history, user, userId);
     }
 }

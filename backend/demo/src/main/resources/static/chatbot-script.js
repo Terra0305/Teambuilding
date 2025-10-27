@@ -260,6 +260,8 @@ window.addEventListener('load', async () => {
             alert('로그아웃 되었습니다.');
             window.location.href = '/';
         });
+        // 대화 내역 불러오기
+        await loadChatHistory();
     } else {
         authButton.textContent = '로그인';
         authButton.addEventListener('click', () => {
@@ -279,6 +281,33 @@ window.addEventListener('load', async () => {
         return;
     }
 });
+
+async function loadChatHistory() {
+    const token = localStorage.getItem('jwt-token');
+    if (!token) return;
+
+    try {
+        const response = await fetch('/api/chatbot/history', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error('대화 내역을 불러오는데 실패했습니다.');
+        }
+
+        const result = await response.json();
+        if (result.success && result.history) {
+            chatHistory.innerHTML = ''; // 기존 내역 초기화
+            result.history.forEach(msg => {
+                // 백엔드에서 이미 텍스트를 가공했으므로 바로 사용
+                addMessageToHistory(msg.role, msg.content);
+            });
+        }
+    } catch (error) {
+        console.error('History loading error:', error);
+        addMessageToHistory('bot', `오류: ${error.message}`);
+    }
+}
 
 clearButton.addEventListener('click', async () => {
     const token = localStorage.getItem('jwt-token');
