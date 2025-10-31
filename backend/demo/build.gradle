@@ -61,13 +61,7 @@ jar {
 // Frontend build settings
 def frontendDir = new File(project.projectDir, '../../frontend/my-react-app')
 
-task listFiles(type: Exec) {
-    workingDir project.projectDir.parentFile.parentFile
-    commandLine 'ls', '-laR'
-}
-
 task cleanFrontend(type: Delete) {
-    dependsOn listFiles
     delete new File(frontendDir, 'node_modules'), new File(frontendDir, 'build')
 }
 
