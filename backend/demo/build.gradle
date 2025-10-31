@@ -57,3 +57,25 @@ tasks.withType(JavaCompile) {
 jar {
     enabled = false
 }
+
+// Frontend build settings
+def frontendDir = new File(project.projectDir, '../../frontend/my-react-app')
+
+task installFrontend(type: Exec) {
+    workingDir frontendDir
+    commandLine 'npm', 'install'
+}
+
+task buildFrontend(type: Exec) {
+    dependsOn installFrontend
+    workingDir frontendDir
+    commandLine 'npm', 'run', 'build'
+}
+
+task copyFrontend(type: Copy) {
+    dependsOn buildFrontend
+    from new File(frontendDir, 'build')
+    into new File(project.projectDir, 'src/main/resources/static')
+}
+
+processResources.dependsOn copyFrontend
