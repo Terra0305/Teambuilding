@@ -1,7 +1,6 @@
 // src/components/PaymentComplete.js
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../App.css';
 import logo from '../logo.png';
 
 const styles = {

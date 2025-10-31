@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../App.css';
 import logo from '../logo.png';
-import callIcon from '../images/voice.png'; // ✅ voice.png 경로
 
 const styles = {
   body: {
@@ -131,10 +129,7 @@ function TrainBooking_Voice() {
         <h1 style={styles.h1}>기차예매</h1>
       </div>
 
-      {/* 🔹 이미지 버튼 */}
-      <div style={styles.imgButton} onClick={startVoiceBooking}>
-        <img src={callIcon} alt="음성 아이콘" style={styles.callIcon} />
-      </div>
+      
 
       {/* 🔹 안내 문구 */}
       <p style={styles.infoText}>음성 예매를 시작하려면 버튼을 눌러 주세요</p>

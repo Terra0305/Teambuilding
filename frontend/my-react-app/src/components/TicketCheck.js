@@ -1,7 +1,6 @@
 // src/components/TicketCheck.js
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import '../App.css';
 import logo from '../logo.png';
 
 const styles = {

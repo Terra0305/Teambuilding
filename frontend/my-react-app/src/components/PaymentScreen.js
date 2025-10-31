@@ -1,7 +1,6 @@
 // src/components/PaymentScreen.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../App.css';
 import logo from '../logo.png';
 
 const styles = {
