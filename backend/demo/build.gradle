@@ -68,7 +68,7 @@ task cleanFrontend(type: Delete) {
 task installFrontend(type: Exec) {
     dependsOn cleanFrontend
     workingDir frontendDir
-    commandLine 'npm', 'ci'
+    commandLine 'npm', 'install'
 }
 
 task buildFrontend(type: Exec) {
