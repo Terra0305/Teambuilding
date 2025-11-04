@@ -44,3 +44,6 @@ out/
 ### Application Properties (PostgreSQL 비밀번호 등) ###
 application-local.properties
 application-prod.properties
+
+# Local properties file for secrets
+local.properties

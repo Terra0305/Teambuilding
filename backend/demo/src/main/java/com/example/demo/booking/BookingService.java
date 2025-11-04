@@ -37,7 +37,23 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-    
+    @Transactional
+    public BookingResponseDto confirmBooking(Long bookingId, Long userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예매입니다."));
+
+        if (!booking.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("예매 확인 권한이 없습니다.");
+        }
+
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new IllegalStateException("이미 처리된 예매입니다.");
+        }
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+        Booking savedBooking = bookingRepository.save(booking);
+        return new BookingResponseDto(savedBooking);
+    }
 
     @Transactional
     public void cancelBooking(Long bookingId, Long userId) {

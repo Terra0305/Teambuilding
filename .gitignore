@@ -41,3 +41,6 @@ gradle-app.setting
 C:/Users/jpsm0/.gradle/
 C:/Users/jpsm0/gradle/
 mcp-server/node_modules/
+
+# Sensitive properties files
+backend/demo/src/main/resources/application-h2.properties

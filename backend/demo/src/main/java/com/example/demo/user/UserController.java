@@ -26,6 +26,7 @@ public class UserController {
         
         // 디버깅: 받은 데이터 로그 출력
         System.out.println("=== 회원가입 요청 데이터 ===");
+        System.out.println("name: " + request.getName());
         System.out.println("username: " + request.getUsername());
         System.out.println("password: " + request.getPassword());
         System.out.println("passwordConfirm: " + request.getPasswordConfirm());
@@ -51,13 +52,25 @@ public class UserController {
         
         // 기존: 회원가입 처리 (name 대신 username 사용)
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        User newUser = new User(request.getUsername(), encodedPassword, request.getUsername());
+        User newUser = new User(request.getUsername(), encodedPassword, request.getName());
         userRepository.save(newUser);
         
         response.put("success", true);
         response.put("message", "회원가입 성공");
         System.out.println("=== 회원가입 성공 응답 전송 ===");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal com.example.demo.security.UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+        User user = userDetails.getUser();
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("username", user.getUsername());
+        userInfo.put("name", user.getName());
+        return ResponseEntity.ok(userInfo);
     }
 
     }

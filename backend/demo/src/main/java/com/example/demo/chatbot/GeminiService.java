@@ -58,7 +58,55 @@ public class GeminiService {
             conversationHistory.add(userMessageMap);
             chatMessageRepository.save(new ChatMessage(user, "user", gson.toJson(userMessageMap)));
 
-            JsonObject response = callGeminiWithTools(conversationHistory, userId);
+            // Retry logic for Gemini API call
+            int maxAttempts = 3;
+            long initialDelayMillis = 1000; // 1 second
+            JsonObject response = null;
+            String errorMessage = null;
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    // Original Gemini API call logic
+                    response = callGeminiWithTools(conversationHistory, userId);
+                    // If successful, break the loop
+                    break;
+                } catch (WebClientResponseException e) {
+                    System.err.println("API 오류: " + e.getStatusCode());
+                    System.err.println("응답: " + e.getResponseBodyAsString());
+
+                    if (e.getStatusCode().value() == 503 && attempt < maxAttempts - 1) {
+                        // If 503 and not last attempt, retry with exponential backoff
+                        long delay = initialDelayMillis * (1L << attempt); // 1s, 2s, 4s
+                        System.err.println(String.format("Gemini API 503 오류 발생. %dms 후 재시도합니다. (시도 %d/%d)", delay, attempt + 1, maxAttempts));
+                        try {
+                            Thread.sleep(delay);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            errorMessage = "AI 서버 통신 중단: " + ie.getMessage();
+                            break; // Exit retry loop if interrupted
+                        }
+                    } else {
+                        // Not a 503, or last attempt failed, or other WebClientResponseException
+                        errorMessage = "AI 서버 오류: " + e.getStatusCode();
+                        if (e.getStatusCode().value() == 503 && e.getResponseBodyAsString().contains("overloaded")) {
+                            errorMessage = "AI 서비스가 현재 과부하 상태입니다. 잠시 후 다시 시도해주세요.";
+                        } else if (e.getStatusCode().value() == 503) {
+                            errorMessage = "AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                        }
+                        break; // Exit retry loop
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    errorMessage = "오류: " + e.getMessage();
+                    break; // Exit retry loop
+                }
+            }
+
+            if (response == null) {
+                // All retries failed or an unrecoverable error occurred
+                return errorMessage != null ? errorMessage : "알 수 없는 AI 서버 오류가 발생했습니다.";
+            }
+
             return processGeminiResponse(response, conversationHistory, user, userId);
 
         } catch (WebClientResponseException e) {
@@ -116,7 +164,8 @@ public class GeminiService {
             "User ID: " + userId + "\n\n" +
             "CRITICAL INSTRUCTIONS:\n" +
             "1. ALWAYS use tools to get real data. NEVER make assumptions or ask clarifying questions when you can use tools.\n" +
-            "2. When user mentions dates in Korean (like '10월27일'), convert to YYYY-MM-DD format (" + todayStr + ")\n" +
+            "2. NEVER call 'book_train' if the conversation history already contains a successful 'book_train' function response for the same train. Check the history carefully.\n" +
+            "3. When user mentions dates in Korean (like '10월27일'), convert to YYYY-MM-DD format (" + todayStr + ")\n" +
             "3. Common Korean dates:\n" +
             "   - '오늘', 'today' → " + todayStr + "\n" +
             "   - '10월27일', '10/27' → " + todayStr + "\n" +
@@ -133,10 +182,11 @@ public class GeminiService {
             "2. Convert date to YYYY-MM-DD\n" +
             "3. USE search_trains tool immediately\n" +
             "4. Present results in Korean\n\n" +
-            "⭐ IMPORTANT: When presenting search results:\n" +
-            "- If there is ONLY 1 train result: Present it and ask '이 기차를 예매하시겠습니까?' (YES/NO question)\n" +
-            "- If there are MULTIPLE trains: Present all results and ask '어떤 기차를 예매하시겠어요? (기차 번호 또는 출발 시간을 알려주세요)'\n" +
-            "- DO NOT ask which train to book when there is only one option!\n\n" +
+            "⭐ IMPORTANT: Booking and Payment Flow:\n" +
+            "1. After presenting train options, if the user confirms they want to book a specific train (e.g., '네', '예매해줘'), you MUST call the `book_train` tool with the correct `trainId` for that train.\n" +
+            "2. The `book_train` tool will run and return a JSON object for the new booking, which includes a unique `bookingId`.\n" +
+            "3. After the `book_train` tool call is successful, you MUST respond with ONLY the following text: '예매가 완료되었습니다. 결제를 진행합니다.'.\n" +
+            "4. Do not add any other text to this response. The frontend depends on this exact text to proceed to payment.\n\n" +
             "Example 1 (Only 1 train):\n" +
             "User: '10월11일 용산에서 광주가는 기차표 예매해줘'\n" +
             "→ Call search_trains(origin='용산', destination='광주송정', date='2025-10-11')\n" +

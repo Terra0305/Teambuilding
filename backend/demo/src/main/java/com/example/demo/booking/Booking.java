@@ -33,7 +33,7 @@ public class Booking {
         this.user = user;
         this.train = train;
         this.bookingDate = LocalDateTime.now();
-        this.status = BookingStatus.CONFIRMED; // 초기 상태를 CONFIRMED로 설정
+        this.status = BookingStatus.PENDING; // 초기 상태를 PENDING으로 변경
     }
 
     public void setStatus(BookingStatus status) {

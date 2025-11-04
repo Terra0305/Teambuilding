@@ -173,7 +173,7 @@ async function searchTrains(args) {
 
 // 기차 예매
 async function bookTrain(args) {
-  const { trainId, userId = 1 } = args; // 기본 userId = 1 (테스트용)
+  const { trainId } = args;
 
   const response = await fetch(`${BACKEND_URL}/api/bookings`, {
     method: 'POST',
@@ -182,7 +182,6 @@ async function bookTrain(args) {
       'Authorization': JWT_TOKEN ? `Bearer ${JWT_TOKEN}` : '',
     },
     body: JSON.stringify({
-      userId,
       trainId,
     }),
   });
@@ -191,12 +190,7 @@ async function bookTrain(args) {
     throw new Error(`예매 실패: ${response.status}`);
   }
 
-  const result = await response.text();
-
-  return {
-    success: true,
-    message: result,
-  };
+  return response.json(); // 백엔드에서 받은 JSON을 그대로 반환
 }
 
 // 예매 내역 조회
