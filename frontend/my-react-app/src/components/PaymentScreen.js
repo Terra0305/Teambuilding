@@ -115,7 +115,7 @@ function PaymentScreen() {
     setError(null);
     const token = localStorage.getItem('jwtToken');
 
-    fetch('http://localhost:8080/api/payment/process', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/payment/process`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

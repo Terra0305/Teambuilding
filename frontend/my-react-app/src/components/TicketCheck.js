@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../logo.png';
@@ -114,7 +114,7 @@ function TicketCheck() {
   const [bookings, setBookings] = useState([]);
   const [message, setMessage] = useState('예매 내역을 불러오는 중...');
 
-  const fetchBookings = () => {
+  const fetchBookings = useCallback(() => {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
       alert('로그인이 필요합니다.');
@@ -122,7 +122,7 @@ function TicketCheck() {
       return;
     }
 
-    fetch('http://localhost:8080/api/my-bookings', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/my-bookings`, {
       headers: { 'Authorization': `Bearer ${token}` },
     })
     .then(response => {
@@ -143,17 +143,17 @@ function TicketCheck() {
       console.error("Error fetching bookings:", error);
       setMessage('예매 내역을 불러오는 중 오류가 발생했습니다.');
     });
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
   const handleCancelBooking = (bookingId) => {
     if (!window.confirm('정말로 이 예매를 취소하시겠습니까?')) return;
 
     const token = localStorage.getItem('jwtToken');
-    fetch(`http://localhost:8080/api/bookings/${bookingId}`,
+    fetch(`${process.env.REACT_APP_API_URL}/api/bookings/${bookingId}`,
      {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../logo.png';
@@ -107,14 +107,22 @@ function MainPage() {
   const [error, setError] = useState(null); // 에러 메시지 상태
   const navigate = useNavigate();
 
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('jwtToken');
+    setUser(null);
+    setBookings([]);
+    navigate('/login');
+  }, [navigate]);
+
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (token) {
       Promise.all([
-        fetch('http://localhost:8080/api/me', {
+        fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:8080/api/my-bookings', {
+        fetch(`${process.env.REACT_APP_API_URL}/api/my-bookings`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]).then(async ([userRes, bookingsRes]) => {
@@ -146,15 +154,7 @@ function MainPage() {
         // handleLogout(); // 더 이상 자동으로 로그아웃하지 않음
       });
     }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('jwtToken');
-    setUser(null);
-    setBookings([]);
-    navigate('/login');
-  };
+  }, [handleLogout]);
 
   // 에러가 발생했을 때 보여줄 UI
   if (error) {

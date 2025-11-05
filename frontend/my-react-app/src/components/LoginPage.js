@@ -98,7 +98,7 @@ function LoginPage() {
 
     setMessage('로그인 중...');
 
-    fetch('http://localhost:8080/api/login', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

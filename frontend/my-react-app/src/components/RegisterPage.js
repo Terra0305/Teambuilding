@@ -106,7 +106,7 @@ function RegisterPage() {
 
     setMessage('회원가입 중...');
 
-    fetch('http://localhost:8080/api/signup', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

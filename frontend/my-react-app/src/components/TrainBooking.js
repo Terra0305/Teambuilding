@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../logo.png';
@@ -103,7 +103,7 @@ function TrainBooking() {
     setMessage('기차편을 검색 중입니다...');
     setTrains([]);
 
-    const url = `http://localhost:8080/api/trains?origin=${origin}&destination=${destination}&date=${date}`;
+    const url = `${process.env.REACT_APP_API_URL}/api/trains?origin=${origin}&destination=${destination}&date=${date}`;
 
     fetch(url)
       .then(response => {
@@ -134,7 +134,7 @@ function TrainBooking() {
       return;
     }
 
-    fetch('http://localhost:8080/api/bookings', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/bookings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

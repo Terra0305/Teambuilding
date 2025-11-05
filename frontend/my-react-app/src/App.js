@@ -6,11 +6,11 @@ import MainPage from './components/MainPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import TrainBooking from './components/TrainBooking';
-import TrainBooking_Voice from './components/TrainBooking_Voice';
-import TrainBooking_Chat from './components/TrainBooking_Chat';
+import TrainBookingVoice from './components/TrainBookingVoice';
+import TrainBookingChat from './components/TrainBookingChat';
 import BusBooking from './components/BusBooking';
-import BusBooking_Voice from './components/BusBooking_Voice';
-import BusBooking_Chat from './components/BusBooking_Chat';
+import BusBookingVoice from './components/BusBookingVoice';
+import BusBookingChat from './components/BusBookingChat';
 import TicketCheck from './components/TicketCheck';
 
 // ✅ 새로 추가한 결제 관련 컴포넌트
@@ -29,13 +29,13 @@ function App() {
 
         {/* 기차 예매 관련 */}
         <Route path="/trainbooking" element={<TrainBooking />} />
-        <Route path="/trainbooking_voice" element={<TrainBooking_Voice />} />
-        <Route path="/trainbooking_chat" element={<TrainBooking_Chat />} />
+        <Route path="/trainbooking-voice" element={<TrainBookingVoice />} />
+        <Route path="/trainbooking-chat" element={<TrainBookingChat />} />
 
         {/* 버스 예매 관련 */}
         <Route path="/busbooking" element={<BusBooking />} />
-        <Route path="/busbooking_voice" element={<BusBooking_Voice />} />
-        <Route path="/busbooking_chat" element={<BusBooking_Chat />} />
+        <Route path="/busbooking-voice" element={<BusBookingVoice />} />
+        <Route path="/busbooking-chat" element={<BusBookingChat />} />
 
         {/* 승차권 확인 */}
         <Route path="/check" element={<TicketCheck />} />

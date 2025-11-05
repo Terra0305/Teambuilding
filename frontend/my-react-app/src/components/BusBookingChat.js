@@ -1,5 +1,5 @@
-// src/components/BusBooking_Chat.js
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/BusBookingChat.js
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../logo.png';
@@ -135,7 +135,7 @@ const styles = {
   },
 };
 
-function BusBooking_Chat() {
+function BusBookingChat() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -151,7 +151,7 @@ function BusBooking_Chat() {
   }, [messages]);
 
   // 채팅 기록 불러오기
-  const fetchHistory = () => {
+  const fetchHistory = useCallback(() => {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
       alert('로그인이 필요합니다.');
@@ -159,7 +159,7 @@ function BusBooking_Chat() {
       return;
     }
 
-    fetch('http://localhost:8080/api/chatbot/history', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/chatbot/history`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -184,12 +184,12 @@ function BusBooking_Chat() {
         ]);
       }
     });
-  };
+  }, [navigate]);
 
   // 컴포넌트 마운트 시 채팅 기록 불러오기
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [fetchHistory]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -211,7 +211,7 @@ function BusBooking_Chat() {
 
     const token = localStorage.getItem('jwtToken');
 
-    fetch('http://localhost:8080/api/chatbot/chat', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/chatbot/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ function BusBooking_Chat() {
       return;
     }
 
-    fetch('http://localhost:8080/api/bookings', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/bookings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ function BusBooking_Chat() {
     const token = localStorage.getItem('jwtToken');
     if (!window.confirm('대화 내용을 모두 삭제하시겠습니까?')) return;
 
-    fetch('http://localhost:8080/api/chatbot/clear', {
+    fetch(`${process.env.REACT_APP_API_URL}/api/chatbot/clear`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -384,4 +384,4 @@ function BusBooking_Chat() {
   );
 }
 
-export default BusBooking_Chat;
+export default BusBookingChat;
