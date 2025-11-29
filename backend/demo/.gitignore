@@ -44,3 +44,10 @@ out/
 ### Application Properties (PostgreSQL 비밀번호 등) ###
 application-local.properties
 application-prod.properties
+
+### Frontend (React/Node) - 이거 추가 필수 ###
+node_modules/
+dist/
+package-lock.json
+yarn.lock
+.DS_Store
