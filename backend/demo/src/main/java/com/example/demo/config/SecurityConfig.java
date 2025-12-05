@@ -21,62 +21,75 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+                return configuration.getAuthenticationManager();
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // CSRF, Form Login, HTTP Basic 비활성화
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                // CSRF, Form Login, HTTP Basic 비활성화
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // URL 별 접근 권한 설정
-        http
-            .authorizeHttpRequests(auth -> auth
-                // 정적 리소스는 무조건 허용
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                // URL 별 접근 권한 설정
+                http
+                                .authorizeHttpRequests(auth -> auth
+                                                // 정적 리소스는 무조건 허용
+                                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                                                .permitAll()
 
-                // ✅ 기본 웹 페이지들 허용
-                .requestMatchers("/", "/home", "/login", "/signup", "/login-success", "/mypage", "/train-reserve", "/train-search").permitAll()
-                
-                // ✅ 챗봇 페이지 허용
-                .requestMatchers("/chatbot.html", "/chatbot", "/voice-reserve.html", "/voice-reserve").permitAll()
+                                                // ✅ 기본 웹 페이지들 허용 (SPA 라우트 포함)
+                                                .requestMatchers(
+                                                                "/", "/home", "/login", "/signup", "/register",
+                                                                "/login-success", "/mypage",
+                                                                "/train-reserve", "/train-search",
+                                                                "/trainbooking/**", "/busbooking/**", "/check",
+                                                                "/payment/**")
+                                                .permitAll()
 
-                // ✅ 에러 페이지 허용
-                .requestMatchers("/error").permitAll()
+                                                // ✅ 챗봇 페이지 허용
+                                                .requestMatchers("/chatbot.html", "/chatbot", "/voice-reserve.html",
+                                                                "/voice-reserve")
+                                                .permitAll()
 
-                // 회원가입, 로그인 API는 무조건 허용
-                .requestMatchers("/api/signup", "/api/login").permitAll()
+                                                // ✅ 에러 페이지 허용
+                                                .requestMatchers("/error").permitAll()
 
-                // ⭐ 기차 검색 API도 허용 (이게 핵심!)
-                .requestMatchers("/api/trains", "/api/trains/**").permitAll()
+                                                // 회원가입, 로그인 API는 무조건 허용
+                                                .requestMatchers("/api/signup", "/api/login").permitAll()
 
-                // ⭐ 챗봇 API 허용 (인증 필요!)
-                .requestMatchers("/api/chatbot/**").authenticated()
+                                                // ⭐ 기차 검색 API도 허용 (이게 핵심!)
+                                                .requestMatchers("/api/trains", "/api/trains/**").permitAll()
 
-                // 정적 파일들 (CSS, JS, 이미지 등) 허용 - *.js 추가!
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**", "/favicon.ico", "/*.html", "/*.js", "/*.css").permitAll()
+                                                // ⭐ 챗봇 API 허용 (인증 필요!)
+                                                .requestMatchers("/api/chatbot/**").authenticated()
 
-                // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
-                .anyRequest().authenticated()
-            );
+                                                // 정적 파일들 (CSS, JS, 이미지 등) 허용 - *.js 추가!
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**",
+                                                                "/favicon.ico", "/*.html",
+                                                                "/*.js", "/*.css", "/manifest.json", "/logo192.png",
+                                                                "/apple-touch-icon*.png")
+                                                .permitAll()
 
-        // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-        http
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                                // 나머지 API들은 인증 필요 (JWT 토큰 있어야 함)
+                                                .anyRequest().authenticated());
 
-        return http.build();
-    }
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
+                http
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 }

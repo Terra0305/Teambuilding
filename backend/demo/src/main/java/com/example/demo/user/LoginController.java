@@ -33,7 +33,23 @@ public class LoginController {
         String token = jwtUtil.generateToken(user.getUsername());
         response.put("success", true);
         response.put("token", token);
-        
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> getMyInfo(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal com.example.demo.security.UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        User user = userDetails.getUser();
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId());
+        response.put("username", user.getUsername());
+        response.put("name", user.getName());
+        response.put("role", user.getRole());
+
         return ResponseEntity.ok(response);
     }
 }

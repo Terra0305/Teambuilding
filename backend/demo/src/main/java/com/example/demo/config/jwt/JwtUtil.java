@@ -17,7 +17,7 @@ public class JwtUtil {
     // JWT 토큰 생성에 필요한 값들
     @Value("${jwt.secret.key}") // application.properties 에서 가져올 비밀키
     private String secretKey;
-    
+
     private Key key; // 비밀키를 암호화해서 저장할 객체
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
@@ -46,6 +46,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (Exception e) {
+            System.out.println("JWT Validation Error: " + e.getMessage());
             return false;
         }
     }

@@ -98,8 +98,8 @@ function LoginPage() {
 
     setMessage('로그인 중...');
 
-    // 가상의 로그인 API 호출
-    fetch('https://jsonplaceholder.typicode.com/posts', {
+    // 실제 로그인 API 호출
+    fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -113,13 +113,18 @@ function LoginPage() {
       })
       .then(data => {
         console.log('서버로부터 받은 데이터:', data);
-        setMessage(`'${username}'님, 로그인에 성공했습니다!`);
-        localStorage.setItem('isLoggedIn', 'true');
-        navigate('/');
+        if (data.success) {
+          setMessage(`'${username}'님, 로그인에 성공했습니다!`);
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('jwtToken', data.token); // 토큰 저장
+          navigate('/');
+        } else {
+          throw new Error(data.message || '로그인 실패');
+        }
       })
       .catch(error => {
         console.error('로그인 요청 에러:', error);
-        setMessage('로그인에 실패했습니다. 아이디나 비밀번호를 확인해주세요.');
+        setMessage(error.message || '로그인에 실패했습니다. 아이디나 비밀번호를 확인해주세요.');
       });
   };
 
