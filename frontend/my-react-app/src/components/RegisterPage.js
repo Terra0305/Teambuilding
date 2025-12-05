@@ -3,21 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
 const styles = {
-  body: { 
-    fontFamily: 'Arial, sans-serif', 
-    backgroundColor: '#f4f4f4', 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '100vh', 
+  body: {
+    fontFamily: 'Arial, sans-serif',
+    backgroundColor: '#f4f4f4',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
     margin: 0,
   },
-  registerContainer: { 
-    backgroundColor: '#fff', 
-    padding: '20px 40px', 
-    borderRadius: '8px', 
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', 
-    width: '350px', 
+  registerContainer: {
+    backgroundColor: '#fff',
+    padding: '20px 40px',
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    width: '350px',
     textAlign: 'center',
   },
   brandTitle: {
@@ -30,33 +30,33 @@ const styles = {
     color: '#333',
     fontSize: 'inherit',
   },
-  formGroup: { 
-    marginBottom: '15px', 
+  formGroup: {
+    marginBottom: '15px',
     textAlign: 'left',
   },
-  label: { 
-    display: 'block', 
-    marginBottom: '5px', 
-    fontWeight: 'bold', 
-    color: '#555', 
+  label: {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold',
+    color: '#555',
     fontSize: '13px',
   },
-  input: { 
-    width: 'calc(100% - 22px)', 
-    padding: '10px', 
-    border: '1px solid #ddd', 
-    borderRadius: '4px', 
+  input: {
+    width: 'calc(100% - 22px)',
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
     fontSize: '16px',
   },
-  submitInput: { 
-    backgroundColor: '#28a745', 
-    color: 'white', 
-    padding: '10px 15px', 
-    border: 'none', 
-    borderRadius: '4px', 
-    cursor: 'pointer', 
-    fontSize: '16px', 
-    width: '100%', 
+  submitInput: {
+    backgroundColor: '#28a745',
+    color: 'white',
+    padding: '10px 15px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    width: '100%',
     transition: 'background-color 0.3s ease',
   },
   homeButton: {
@@ -76,14 +76,14 @@ const styles = {
     fontWeight: 'bold',
     color: '#d9534f',
   },
-  loginLink: { 
-    marginTop: '20px', 
-    fontSize: '14px', 
+  loginLink: {
+    marginTop: '20px',
+    fontSize: '14px',
     color: '#555',
   },
-  loginLinkA: { 
-    color: '#007bff', 
-    textDecoration: 'none', 
+  loginLinkA: {
+    color: '#007bff',
+    textDecoration: 'none',
     fontWeight: 'bold',
   },
 };
@@ -106,7 +106,7 @@ function RegisterPage() {
 
     setMessage('회원가입 중...');
 
-    fetch('http://localhost:8080/api/signup', {
+    fetch('/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -116,24 +116,24 @@ function RegisterPage() {
         passwordConfirm: confirmPassword,
       }),
     })
-    .then(response => {
-      return response.json().then(data => {
-        if (!response.ok) {
-          throw new Error(data.message || '서버 응답에 실패했습니다.');
-        }
-        return data;
+      .then(response => {
+        return response.json().then(data => {
+          if (!response.ok) {
+            throw new Error(data.message || '서버 응답에 실패했습니다.');
+          }
+          return data;
+        });
+      })
+      .then(data => {
+        console.log('서버로부터 받은 데이터:', data);
+        setMessage(`'${name}'님, 회원가입에 성공했습니다!`);
+        // 성공 후 로그인 페이지로 이동
+        navigate('/login');
+      })
+      .catch(error => {
+        console.error('회원가입 요청 에러:', error);
+        setMessage(error.message || '회원가입에 실패했습니다. 다시 시도해주세요.');
       });
-    })
-    .then(data => {
-      console.log('서버로부터 받은 데이터:', data);
-      setMessage(`'${name}'님, 회원가입에 성공했습니다!`);
-      // 성공 후 로그인 페이지로 이동
-      navigate('/login');
-    })
-    .catch(error => {
-      console.error('회원가입 요청 에러:', error);
-      setMessage(error.message || '회원가입에 실패했습니다. 다시 시도해주세요.');
-    });
   };
 
   return (

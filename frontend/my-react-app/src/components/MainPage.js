@@ -128,7 +128,7 @@ function MainPage() {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]).then(async ([userRes, bookingsRes]) => {
-        if (userRes.status === 401 || bookingsRes.status === 401) {
+        if (userRes.status === 401 || bookingsRes.status === 401 || userRes.status === 403 || bookingsRes.status === 403) {
           handleLogout();
           alert('세션이 만료되었습니다. 다시 로그인해주세요.');
           return;

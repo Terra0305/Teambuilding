@@ -144,17 +144,54 @@ function TrainBooking_Chat() {
     navigate('/login');
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() === '') return;
-    setMessages(prev => [...prev, { from: 'user', text: input }]);
+
+    const userMessage = input;
+    setMessages(prev => [...prev, { from: 'user', text: userMessage }]);
     setInput('');
 
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        { from: 'bot', text: '예매를 진행하시겠어요?' },
-      ]);
-    }, 600);
+    try {
+      const token = localStorage.getItem('jwtToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      // AI 응답 대기 표시 (선택 사항)
+      // setMessages(prev => [...prev, { from: 'bot', text: '...' }]);
+
+      const response = await fetch('http://localhost:8080/api/chatbot/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      if (response.status === 401) {
+        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        handleLogout();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('API 요청 실패');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => [...prev, { from: 'bot', text: data.message }]);
+      } else {
+        setMessages(prev => [...prev, { from: 'bot', text: '오류가 발생했습니다: ' + data.message }]);
+      }
+
+    } catch (error) {
+      console.error('API Error:', error);
+      setMessages(prev => [...prev, { from: 'bot', text: '죄송해요, 서버와 연결할 수 없어요.' }]);
+    }
   };
 
   const handleKeyPress = (e) => {
