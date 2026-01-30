@@ -20,3 +20,6 @@
 **/.project
 **/.settings/
 **/target/
+
+# Personal Documentation
+project_report.md
