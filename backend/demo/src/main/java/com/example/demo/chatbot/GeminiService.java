@@ -53,8 +53,7 @@ public class GeminiService {
             // 새 사용자 메시지 추가 및 DB 저장
             Map<String, Object> userMessageMap = Map.of(
                     "role", "user",
-                    "parts", List.of(Map.of("text", userMessage))
-            );
+                    "parts", List.of(Map.of("text", userMessage)));
             conversationHistory.add(userMessageMap);
             chatMessageRepository.save(new ChatMessage(user, "user", gson.toJson(userMessageMap)));
 
@@ -110,47 +109,50 @@ public class GeminiService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String todayStr = today.format(formatter);
         String tomorrowStr = tomorrow.format(formatter);
-        
+
         textPart.addProperty("text",
-            "You are a train booking assistant. Current date: " + todayStr + "\n\n" +
-            "User ID: " + userId + "\n\n" +
-            "CRITICAL INSTRUCTIONS:\n" +
-            "1. ALWAYS use tools to get real data. NEVER make assumptions or ask clarifying questions when you can use tools.\n" +
-            "2. When user mentions dates in Korean (like '10월27일'), convert to YYYY-MM-DD format (" + todayStr + ")\n" +
-            "3. Common Korean dates:\n" +
-            "   - '오늘', 'today' → " + todayStr + "\n" +
-            "   - '10월27일', '10/27' → " + todayStr + "\n" +
-            "   - '내일', 'tomorrow' → " + tomorrowStr + "\n\n" +
-            "Available destinations: 용산, 광주송정, 서울, 부산, 대전, 대구\n" +
-            "- If user says '광주', assume '광주송정'\n\n" +
-            "Available tools:\n" +
-            "1. search_trains(origin, destination, date) - Search trains. Date must be YYYY-MM-DD format\n" +
-            "2. book_train(trainId) - Book a train\n" +
-            "3. get_my_bookings() - Get user bookings\n" +
-            "4. cancel_booking(bookingId) - Cancel booking\n\n" +
-            "WORKFLOW when user asks to search/book:\n" +
-            "1. Extract: origin, destination, date from user message\n" +
-            "2. Convert date to YYYY-MM-DD\n" +
-            "3. USE search_trains tool immediately\n" +
-            "4. Present results in Korean\n\n" +
-            "⭐ IMPORTANT: When presenting search results:\n" +
-            "- If there is ONLY 1 train result: Present it and ask '이 기차를 예매하시겠습니까?' (YES/NO question)\n" +
-            "- If there are MULTIPLE trains: Present all results and ask '어떤 기차를 예매하시겠어요? (기차 번호 또는 출발 시간을 알려주세요)'\n" +
-            "- DO NOT ask which train to book when there is only one option!\n\n" +
-            "Example 1 (Only 1 train):\n" +
-            "User: '10월11일 용산에서 광주가는 기차표 예매해줘'\n" +
-            "→ Call search_trains(origin='용산', destination='광주송정', date='2025-10-11')\n" +
-            "→ If only 1 result: '10월 11일 광주송정에서 용산으로 가는 기차는 다음과 같습니다:\n\n" +
-            "   * KTX 1011_2 (ID: 568): 광주송정 14:00 출발, 용산 16:30 도착, 가격 50000원\n\n" +
-            "   이 기차를 예매하시겠습니까?'\n\n" +
-            "Example 2 (Multiple trains):\n" +
-            "→ If 2+ results: Present all and ask '어떤 기차를 예매하시겠어요?'"
-        );
+                "You are a train booking assistant. Current date: " + todayStr + "\n\n" +
+                        "User ID: " + userId + "\n\n" +
+                        "CRITICAL INSTRUCTIONS:\n" +
+                        "1. ALWAYS use tools to get real data. NEVER make assumptions or ask clarifying questions when you can use tools.\n"
+                        +
+                        "2. When user mentions dates in Korean (like '10월27일'), convert to YYYY-MM-DD format ("
+                        + todayStr + ")\n" +
+                        "3. Common Korean dates:\n" +
+                        "   - '오늘', 'today' → " + todayStr + "\n" +
+                        "   - '10월27일', '10/27' → " + todayStr + "\n" +
+                        "   - '내일', 'tomorrow' → " + tomorrowStr + "\n\n" +
+                        "Available destinations: 용산, 광주송정, 서울, 부산, 대전, 대구\n" +
+                        "- If user says '광주', assume '광주송정'\n\n" +
+                        "Available tools:\n" +
+                        "1. search_trains(origin, destination, date) - Search trains. Date must be YYYY-MM-DD format\n"
+                        +
+                        "2. book_train(trainId) - Book a train\n" +
+                        "3. get_my_bookings() - Get user bookings\n" +
+                        "4. cancel_booking(bookingId) - Cancel booking\n\n" +
+                        "WORKFLOW when user asks to search/book:\n" +
+                        "1. Extract: origin, destination, date from user message\n" +
+                        "2. Convert date to YYYY-MM-DD\n" +
+                        "3. USE search_trains tool immediately\n" +
+                        "4. Present results in Korean\n\n" +
+                        "⭐ IMPORTANT: When presenting search results:\n" +
+                        "- If there is ONLY 1 train result: Present it and ask '이 기차를 예매하시겠습니까?' (YES/NO question)\n" +
+                        "- If there are MULTIPLE trains: Present all results and ask '어떤 기차를 예매하시겠어요? (기차 번호 또는 출발 시간을 알려주세요)'\n"
+                        +
+                        "- DO NOT ask which train to book when there is only one option!\n\n" +
+                        "Example 1 (Only 1 train):\n" +
+                        "User: '10월11일 용산에서 광주가는 기차표 예매해줘'\n" +
+                        "→ Call search_trains(origin='용산', destination='광주송정', date='2025-10-11')\n" +
+                        "→ If only 1 result: '10월 11일 광주송정에서 용산으로 가는 기차는 다음과 같습니다:\n\n" +
+                        "   * KTX 1011_2 (ID: 568): 광주송정 14:00 출발, 용산 16:30 도착, 가격 50000원\n\n" +
+                        "   이 기차를 예매하시겠습니까?'\n\n" +
+                        "Example 2 (Multiple trains):\n" +
+                        "→ If 2+ results: Present all and ask '어떤 기차를 예매하시겠어요?'");
         parts.add(textPart);
         systemInstruction.add("parts", parts);
         requestBody.add("systemInstruction", systemInstruction);
 
-        String url = String.format("/models/gemini-2.5-flash:generateContent?key=%s", apiKey);
+        String url = String.format("/models/gemini-2.5-flash-lite:generateContent?key=%s", apiKey);
 
         String responseStr = webClient.post()
                 .uri(url)
@@ -164,7 +166,8 @@ public class GeminiService {
     }
 
     @Transactional
-    private String processGeminiResponse(JsonObject response, List<Map<String, Object>> history, User user, Long userId) {
+    private String processGeminiResponse(JsonObject response, List<Map<String, Object>> history, User user,
+            Long userId) {
         if (!response.has("candidates") || response.getAsJsonArray("candidates").isEmpty()) {
             return "응답 없음";
         }
@@ -176,7 +179,8 @@ public class GeminiService {
         chatMessageRepository.save(new ChatMessage(user, "model", gson.toJson(content)));
 
         JsonArray parts = content.getAsJsonArray("parts");
-        if (parts.isEmpty()) return "응답 비어있음";
+        if (parts.isEmpty())
+            return "응답 비어있음";
 
         JsonObject firstPart = parts.get(0).getAsJsonObject();
 
@@ -192,7 +196,8 @@ public class GeminiService {
     }
 
     @Transactional
-    private String handleFunctionCall(JsonObject functionCallPart, List<Map<String, Object>> history, User user, Long userId) {
+    private String handleFunctionCall(JsonObject functionCallPart, List<Map<String, Object>> history, User user,
+            Long userId) {
         JsonObject functionCall = functionCallPart.getAsJsonObject("functionCall");
         String functionName = functionCall.get("name").getAsString();
         JsonObject args = functionCall.has("args") ? functionCall.getAsJsonObject("args") : new JsonObject();
@@ -200,7 +205,8 @@ public class GeminiService {
         @SuppressWarnings("unchecked")
         Map<String, Object> argsMap = gson.fromJson(args, Map.class);
 
-        if (functionName.equals("book_train") || functionName.equals("get_my_bookings") || functionName.equals("cancel_booking")) {
+        if (functionName.equals("book_train") || functionName.equals("get_my_bookings")
+                || functionName.equals("cancel_booking")) {
             argsMap.put("userId", userId.doubleValue());
         }
 
@@ -212,10 +218,7 @@ public class GeminiService {
                 "parts", List.of(Map.of(
                         "functionResponse", Map.of(
                                 "name", functionName,
-                                "response", Map.of("content", toolResult)
-                        )
-                ))
-        );
+                                "response", Map.of("content", toolResult)))));
         history.add(functionResponseMap);
         chatMessageRepository.save(new ChatMessage(user, "function", gson.toJson(functionResponseMap)));
 

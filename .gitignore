@@ -5,3 +5,4 @@
 **/.env
 **/.gradle/
 **/package-lock.json
+**/application-secret.properties

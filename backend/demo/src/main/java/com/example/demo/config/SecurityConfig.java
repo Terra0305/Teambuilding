@@ -73,8 +73,8 @@ public class SecurityConfig {
                                                 // ⭐ 기차 검색 API도 허용 (이게 핵심!)
                                                 .requestMatchers("/api/trains", "/api/trains/**").permitAll()
 
-                                                // ⭐ 챗봇 API 허용 (인증 필요!)
-                                                .requestMatchers("/api/chatbot/**").authenticated()
+                                                // ⭐ 챗봇 API 허용 (Controller에서 인증 체크)
+                                                .requestMatchers("/api/chatbot/**").permitAll()
 
                                                 // 정적 파일들 (CSS, JS, 이미지 등) 허용 - *.js 추가!
                                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**",

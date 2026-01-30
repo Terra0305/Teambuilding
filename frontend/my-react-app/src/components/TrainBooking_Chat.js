@@ -1,5 +1,5 @@
 // src/components/TrainBooking_Chat.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import logo from '../logo.png';
@@ -30,8 +30,6 @@ const styles = {
     borderRadius: '20px',
     cursor: 'pointer',
   },
-  // backButton 스타일은 이제 안 써서 굳이 지워도 되지만
-  // 남겨놔도 에러는 아님. 일단 깔끔하게 유지하려고 지움.
   titleContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -139,6 +137,9 @@ function TrainBooking_Chat() {
   ]);
   const [input, setInput] = useState('');
 
+  // IME 입력 상태 관리 (한글 이중 입력 방지용)
+  const isComposing = useRef(false);
+
   const handleLogout = () => {
     localStorage.setItem('isLoggedIn', 'false');
     navigate('/login');
@@ -158,9 +159,6 @@ function TrainBooking_Chat() {
         navigate('/login');
         return;
       }
-
-      // AI 응답 대기 표시 (선택 사항)
-      // setMessages(prev => [...prev, { from: 'bot', text: '...' }]);
 
       const response = await fetch('http://localhost:8080/api/chatbot/chat', {
         method: 'POST',
@@ -195,15 +193,18 @@ function TrainBooking_Chat() {
   };
 
   const handleKeyPress = (e) => {
+    // 한글 조합 중일 때는 전송 막음
+    if (isComposing.current) return;
+
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // 상담원 전화 연결
+  // 상담원 전화 연결 (음성 채팅 페이지로 이동)
   const handleCall = () => {
-    window.location.href = 'tel:1544-1234'; // 번호는 원하는 번호로 교체 가능
+    navigate('/trainbooking_voice');
   };
 
   return (
@@ -258,6 +259,8 @@ function TrainBooking_Chat() {
           placeholder="메시지를 입력하세요..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onCompositionStart={() => isComposing.current = true}
+          onCompositionEnd={() => isComposing.current = false}
           onKeyDown={handleKeyPress}
         />
 
