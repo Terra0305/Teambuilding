@@ -3,6 +3,23 @@
 음성 인식 기반의 대화형 기차 예매 서비스입니다.
 복잡한 UI 조작 없이 음성 명령만으로 기차 예매부터 결제까지 가능한 웹 플랫폼입니다.
 
+## Team
+👑 Leader
+박성민
+[https://github.com/Terra0305]
+
+
+🖥️ Frontend
+조계율
+[https://github.com/gyeyul]
+
+🔩 Backend
+문우주
+[https://github.com/MOONSpace1017]
+손주영
+[https://github.com/gewon823]
+
+
 ## Tech Stack
 
 ### Backend
@@ -59,9 +76,10 @@
 3. Run
    ```bash
    cd backend/demo
-   ./gradlew clean bootRun
-   ```
-   서버 접근: http://localhost:8080
+   server: http://localhost:8080
+   client: http://localhost:8080
+
+
 
 ## Project Structure
 
