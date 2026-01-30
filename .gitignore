@@ -6,3 +6,17 @@
 **/.gradle/
 **/package-lock.json
 **/application-secret.properties
+
+# Logs
+**/*.log
+
+# IDEs
+**/.idea/
+**/.vscode/
+**/*.iml
+**/out/
+**/bin/
+**/.classpath
+**/.project
+**/.settings/
+**/target/
